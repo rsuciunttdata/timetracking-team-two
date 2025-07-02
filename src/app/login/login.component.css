@@ -1,0 +1,76 @@
+  @keyframes slideInUp {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        @keyframes shake {
+          0%, 100% {
+            transform: translateX(0);
+          }
+          10%, 30%, 50%, 70%, 90% {
+            transform: translateX(-5px);
+          }
+          20%, 40%, 60%, 80% {
+            transform: translateX(5px);
+          }
+        }
+
+        .animate-slideInUp {
+          animation: slideInUp 0.5s ease-out forwards;
+        }
+
+        .animate-shake {
+          animation: shake 0.5s ease-in-out;
+        }
+
+        /* Input focus styles */
+        input:focus {
+          box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        /* Backdrop blur support */
+        .backdrop-blur-sm {
+          backdrop-filter: blur(4px);
+        }
+
+        /* Custom button hover effects */
+        button:hover:not(:disabled) {
+          transform: translateY(-1px);
+          box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        button:active:not(:disabled) {
+          transform: translateY(0);
+        }
+
+        /* Loading spinner animation */
+        .animate-spin {
+          animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+          from {
+            transform: rotate(0deg);
+          }
+          to {
+            transform: rotate(360deg);
+          }
+        }
+
+        /* Custom form validation styles */
+        .form-error {
+          animation: slideInUp 0.3s ease-out;
+        }
+
+        /* Glassmorphism effect for the form */
+        .glass-effect {
+          background: rgba(255, 255, 255, 0.8);
+          backdrop-filter: blur(10px);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+        }
