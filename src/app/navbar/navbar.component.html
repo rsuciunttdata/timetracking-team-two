@@ -1,0 +1,24 @@
+<nav class="bg-white/80 backdrop-blur-md border-b border-gray-200 sticky top-0 z-50">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between items-center h-16">
+      <button
+        (click)="navigateToHome()"
+        class="flex items-center space-x-2 focus:outline-none"
+        aria-label="Go to homepage"
+      >
+        <div class="w-8 h-8 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
+          <span class="text-white font-bold text-sm">T</span>
+        </div>
+        <span class="text-xl font-bold text-gray-900">TimeTracker Pro</span>
+      </button>
+
+      <button
+        *ngIf="!isLoginPage()"
+        (click)="navigateToLogin()"
+        class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-all duration-200 hover:shadow-lg transform hover:-translate-y-0.5"
+      >
+        Employee Login
+      </button>
+    </div>
+  </div>
+</nav>

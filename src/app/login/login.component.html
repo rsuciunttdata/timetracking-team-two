@@ -5,27 +5,6 @@
     <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-gradient-to-tr from-purple-400/5 to-pink-400/5 rounded-full blur-3xl"></div>
   </div>
 
-  <!-- Navbar -->
-  <!-- Navbar -->
-<nav class="relative z-20 bg-white/60 backdrop-blur-md border-b border-white/20 shadow-sm">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex justify-between items-center h-16">
-      
-      <!-- Logo with Home Link -->
-      <a href="/" class="flex items-center space-x-3 text-blue-600 hover:text-blue-800 px-3 py-2 rounded-lg hover:bg-blue-50">
-        <div class="w-8 h-8 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
-            <span class="text-white font-bold text-sm">T</span>
-        </div>
-        <span class="text-xl font-bold text-gray-900">TimeTracker Pro</span>
-      </a>
-
-      <!-- Empty space to align right -->
-      <div class="w-24"></div>
-    </div>
-  </div>
-</nav>
-
-
   <!-- Main Content -->
   <div class="flex items-center justify-center px-4 sm:px-6 lg:px-8" style="height: calc(100vh - 4rem);">
     <div class="max-w-md w-full space-y-8 relative z-10">
@@ -55,7 +34,7 @@
               class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 pr-12"
               placeholder="Enter your password"
             />
-            <button type="button" (click)="togglePasswordVisibility()" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600">
+            <button type="button" (click)="togglePasswordVisibility()" class="absolute right-0 top-0 h-full w-10 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-r-xl transition">
               <svg *ngIf="!showPassword" class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0zM2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
               </svg>
