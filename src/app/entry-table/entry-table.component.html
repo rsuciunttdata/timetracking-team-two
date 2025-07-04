@@ -1,0 +1,151 @@
+<div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <!-- Header -->
+      <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+          <mat-icon class="text-blue-600">schedule</mat-icon>
+          <div>
+            <h3 class="text-lg font-semibold text-gray-900">Time Entries</h3>
+            <p class="text-sm text-gray-600">Recent time tracking entries</p>
+          </div>
+        </div>
+        <button (click)="addEntry()"
+            class="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-4 py-2 rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200 flex items-center space-x-2 shadow-sm">
+            <mat-icon class="text-sm">add</mat-icon>
+            <span class="font-medium">Add Entry</span>
+        </button>
+
+      </div>
+      
+      <!-- Table -->
+      <div class="overflow-x-auto">
+        <table mat-table [dataSource]="dataSource" matSort class="w-full">
+          <!-- Date Column -->
+          <ng-container matColumnDef="date">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header 
+                class="bg-gray-50 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-200">
+              Dată
+            </th>
+            <td mat-cell *matCellDef="let entry" class="px-6 py-4 whitespace-nowrap border-b border-gray-100">
+              <div class="flex items-center space-x-3">
+                <mat-icon class="text-gray-400 text-sm">today</mat-icon>
+                <span class="text-sm font-medium text-gray-900">{{ entry.date }}</span>
+              </div>
+            </td>
+          </ng-container>
+          
+          <!-- Start Time Column -->
+          <ng-container matColumnDef="startTime">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header 
+                class="bg-gray-50 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-200">
+              Ora început
+            </th>
+            <td mat-cell *matCellDef="let entry" class="px-6 py-4 whitespace-nowrap border-b border-gray-100">
+              <div class="flex items-center space-x-3">
+                <mat-icon class="text-green-500 text-sm">play_arrow</mat-icon>
+                <span class="text-sm text-gray-900">{{ entry.startTime }}</span>
+              </div>
+            </td>
+          </ng-container>
+          
+          <!-- End Time Column -->
+          <ng-container matColumnDef="endTime">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header 
+                class="bg-gray-50 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-200">
+              Ora sfârșit
+            </th>
+            <td mat-cell *matCellDef="let entry" class="px-6 py-4 whitespace-nowrap border-b border-gray-100">
+              <div class="flex items-center space-x-3">
+                <mat-icon class="text-red-500 text-sm">stop</mat-icon>
+                <span class="text-sm text-gray-900">{{ entry.endTime }}</span>
+              </div>
+            </td>
+          </ng-container>
+          
+          <!-- Break Column -->
+          <ng-container matColumnDef="break">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header 
+                class="bg-gray-50 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-200">
+              Pauză
+            </th>
+            <td mat-cell *matCellDef="let entry" class="px-6 py-4 whitespace-nowrap border-b border-gray-100">
+              <div class="flex items-center space-x-3">
+                <mat-icon class="text-orange-500 text-sm">pause</mat-icon>
+                <span class="text-sm text-gray-900">{{ entry.break }}</span>
+              </div>
+            </td>
+          </ng-container>
+          
+          <!-- Total Column -->
+          <ng-container matColumnDef="total">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header 
+                class="bg-gray-50 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-200">
+              Total
+            </th>
+            <td mat-cell *matCellDef="let entry" class="px-6 py-4 whitespace-nowrap border-b border-gray-100">
+              <div class="flex items-center space-x-3">
+                <mat-icon class="text-purple-500 text-sm">timer</mat-icon>
+                <span class="text-sm font-semibold text-gray-900">{{ entry.total }}</span>
+              </div>
+            </td>
+          </ng-container>
+          
+          <!-- Status Column -->
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header 
+                class="bg-gray-50 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-200">
+              Stare
+            </th>
+            <td mat-cell *matCellDef="let entry" class="px-6 py-4 whitespace-nowrap border-b border-gray-100">
+              <span [ngClass]="getStatusClasses(entry.status)" 
+                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">
+                <mat-icon class="text-xs mr-1">{{ getStatusIcon(entry.status) }}</mat-icon>
+                {{ getStatusText(entry.status) }}
+              </span>
+            </td>
+          </ng-container>
+          
+          <!-- Actions Column -->
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef 
+                class="bg-gray-50 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-200">
+              Acțiuni
+            </th>
+            <td mat-cell *matCellDef="let entry" class="px-6 py-4 whitespace-nowrap border-b border-gray-100">
+              <div class="flex items-center space-x-2">
+                <button (click)="editEntry(entry)" 
+                        class="text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg p-2 transition-colors"
+                        title="Editare">
+                  <mat-icon class="text-sm">edit</mat-icon>
+                </button>
+                <button (click)="deleteEntry(entry)" 
+                        class="text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg p-2 transition-colors"
+                        title="Ștergere">
+                  <mat-icon class="text-sm">delete</mat-icon>
+                </button>
+              </div>
+            </td>
+          </ng-container>
+          
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;" 
+              class="hover:bg-gray-50 transition-colors cursor-pointer"></tr>
+        </table>
+      </div>
+      
+      <!-- Table Footer -->
+      <div class="px-6 py-3 bg-gray-50 border-t border-gray-200">
+        <div class="flex items-center justify-between">
+          <div class="text-sm text-gray-700">
+            Showing <span class="font-medium">{{ dataSource.data.length }}</span> entries
+          </div>
+          <div class="flex items-center space-x-2">
+            <button class="px-3 py-1 border border-gray-300 rounded-md text-sm hover:bg-gray-50 transition-colors">
+              Previous
+            </button>
+            <button class="px-3 py-1 border border-gray-300 rounded-md text-sm hover:bg-gray-50 transition-colors">
+              Next
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>

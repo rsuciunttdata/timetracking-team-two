@@ -1,0 +1,12 @@
+/* Initial state: dialog is off screen to the right */
+.slide-dialog-container {
+  transform: translateX(100%);
+  opacity: 0;
+  transition: transform 300ms ease-out, opacity 300ms ease-out;
+}
+
+/* When dialog is open, slide it into view */
+.slide-dialog-container.mat-dialog-container {
+  transform: translateX(0);
+  opacity: 1;
+}
