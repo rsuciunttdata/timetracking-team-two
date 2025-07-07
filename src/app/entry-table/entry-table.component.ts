@@ -1,4 +1,4 @@
-// entry-table/entry-table.component.ts
+
 import { Component, ViewChild, OnInit, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
@@ -15,7 +15,7 @@ export interface TimeEntry {
   endTime: string;
   break: string;
   total: string;
-  status: 'completed' | 'active' | 'paused';
+  status: 'draft' | 'pending' | 'accepted' | 'rejected';
   project: string;
   description: string;
 }
@@ -50,7 +50,7 @@ export class EntryTableComponent implements OnInit, AfterViewInit {
       endTime: '17:30',
       break: '1h 00m',
       total: '7h 30m',
-      status: 'completed',
+      status: 'accepted',
       project: 'Project Alpha',
       description: 'Bug fixing and code review'
     },
@@ -61,7 +61,7 @@ export class EntryTableComponent implements OnInit, AfterViewInit {
       endTime: '12:00',
       break: '30m',
       total: '3h 00m',
-      status: 'active',
+      status: 'draft',
       project: 'Project Beta',
       description: 'UI development'
     },
@@ -72,7 +72,7 @@ export class EntryTableComponent implements OnInit, AfterViewInit {
       endTime: '15:00',
       break: '45m',
       total: '4h 15m',
-      status: 'paused',
+      status: 'pending',
       project: 'Project Gamma',
       description: 'Database optimization'
     },
@@ -83,7 +83,7 @@ export class EntryTableComponent implements OnInit, AfterViewInit {
       endTime: '18:00',
       break: '15m',
       total: '3h 45m',
-      status: 'completed',
+      status: 'accepted',
       project: 'Project Alpha',
       description: 'Testing and documentation'
     },
@@ -94,7 +94,7 @@ export class EntryTableComponent implements OnInit, AfterViewInit {
       endTime: '17:00',
       break: '1h 15m',
       total: '6h 30m',
-      status: 'completed',
+      status: 'accepted',
       project: 'Project Beta',
       description: 'Feature implementation'
     }
@@ -113,18 +113,18 @@ export class EntryTableComponent implements OnInit, AfterViewInit {
   
   getStatusIcon(status: string): string {
     switch(status) {
-      case 'completed': return 'check_circle';
-      case 'active': return 'play_circle';
-      case 'paused': return 'pause_circle';
+      case 'accepted': return 'check_circle';
+      case 'pending': return 'play_circle';
+      case 'draft': return 'pause_circle';
       default: return 'help';
     }
   }
   
   getStatusText(status: string): string {
     switch(status) {
-      case 'completed': return 'Completat';
-      case 'active': return 'Activ';
-      case 'paused': return 'Pauză';
+      case 'accepted': return 'Acceptat';
+      case 'pending': return 'Pending';
+      case 'draft': return 'Draft';
       default: return 'Necunoscut';
     }
   }
@@ -132,9 +132,9 @@ export class EntryTableComponent implements OnInit, AfterViewInit {
   
   getStatusClasses(status: string): string {
     switch(status) {
-      case 'completed': return 'bg-green-100 text-green-800';
-      case 'active': return 'bg-blue-100 text-blue-800';
-      case 'paused': return 'bg-yellow-100 text-yellow-800';
+      case 'accepted': return 'bg-green-100 text-green-800';
+      case 'pending': return 'bg-blue-100 text-blue-800';
+      case 'draft': return 'bg-yellow-100 text-yellow-800';
       default: return 'bg-gray-100 text-gray-800';
     }
   }
