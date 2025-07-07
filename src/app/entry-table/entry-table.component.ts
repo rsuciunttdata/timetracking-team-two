@@ -1,4 +1,3 @@
-
 import { Component, ViewChild, OnInit, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
@@ -28,7 +27,8 @@ export interface TimeEntry {
     MatTableModule,
     MatSortModule,
     MatIconModule,
-    MatButtonModule
+    MatButtonModule,
+    MatDialogModule
   ],
   templateUrl: './entry-table.component.html',
   styleUrls: ['./entry-table.component.css']
@@ -114,8 +114,9 @@ export class EntryTableComponent implements OnInit, AfterViewInit {
   getStatusIcon(status: string): string {
     switch(status) {
       case 'accepted': return 'check_circle';
-      case 'pending': return 'play_circle';
-      case 'draft': return 'pause_circle';
+      case 'pending': return 'schedule';
+      case 'draft': return 'edit';
+      case 'rejected': return 'cancel';
       default: return 'help';
     }
   }
@@ -125,17 +126,28 @@ export class EntryTableComponent implements OnInit, AfterViewInit {
       case 'accepted': return 'Acceptat';
       case 'pending': return 'Pending';
       case 'draft': return 'Draft';
+      case 'rejected': return 'Respins';
       default: return 'Necunoscut';
     }
   }
 
-  
   getStatusClasses(status: string): string {
     switch(status) {
       case 'accepted': return 'bg-green-100 text-green-800';
       case 'pending': return 'bg-blue-100 text-blue-800';
       case 'draft': return 'bg-yellow-100 text-yellow-800';
+      case 'rejected': return 'bg-red-100 text-red-800';
       default: return 'bg-gray-100 text-gray-800';
+    }
+  }
+
+  getStatusIconColor(status: string): string {
+    switch(status) {
+      case 'accepted': return 'text-green-600';
+      case 'pending': return 'text-blue-600';
+      case 'draft': return 'text-yellow-600';
+      case 'rejected': return 'text-red-600';
+      default: return 'text-gray-600';
     }
   }
 
@@ -157,26 +169,25 @@ export class EntryTableComponent implements OnInit, AfterViewInit {
   }
   
   editEntry(entry: TimeEntry) {
-  const dialogRef = this.dialog.open(EntryFormDialogComponent, {
-    width: '400px',
-    data: { entry, isEditMode: true }
-  });
+    const dialogRef = this.dialog.open(EntryFormDialogComponent, {
+      width: '400px',
+      data: { entry, isEditMode: true }
+    });
 
-  dialogRef.afterClosed().subscribe(result => {
-    if (result) {
-      const index = this.timeEntries.findIndex(e => e.id === entry.id);
-      if (index !== -1) {
-        this.timeEntries[index] = { ...this.timeEntries[index], ...result };
-        this.dataSource.data = [...this.timeEntries];
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        const index = this.timeEntries.findIndex(e => e.id === entry.id);
+        if (index !== -1) {
+          this.timeEntries[index] = { ...this.timeEntries[index], ...result };
+          this.dataSource.data = [...this.timeEntries];
+        }
       }
-    }
-  });
-}
+    });
+  }
 
-  
   deleteEntry(entry: TimeEntry) {
     console.log('Delete entry:', entry);
-    // Implement delete functionality
-    this.dataSource.data = this.dataSource.data.filter(e => e.id !== entry.id);
+    this.timeEntries = this.timeEntries.filter(e => e.id !== entry.id);
+    this.dataSource.data = [...this.timeEntries];
   }
 }
