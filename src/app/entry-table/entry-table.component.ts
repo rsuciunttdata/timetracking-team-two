@@ -7,7 +7,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { EntryFormDialogComponent } from '../entry-form-dialog/entry-form-dialog';
-import { JsonTimeEntryService } from '../services/json-time-entry.service';
+import { TimeEntryService } from '../services/time-entry.service';
 import { TimeEntry } from '../models/time-entry.model';
 
 @Component({
@@ -35,7 +35,7 @@ export class EntryTableComponent implements OnInit, AfterViewInit {
 
   constructor(
     private dialog: MatDialog,
-    private timeEntryService: JsonTimeEntryService,
+    private timeEntryService: TimeEntryService,
     private snackBar: MatSnackBar
   ) {}
 

@@ -1,134 +1,61 @@
-import { Injectable } from '@angular/core';
-import { HttpInterceptor, HttpRequest, HttpHandler, HttpResponse, HttpEvent, HttpClient } from '@angular/common/http';
-import { Observable, of, throwError } from 'rxjs';
-import { delay, switchMap, catchError } from 'rxjs/operators';
-import { TimeEntry, TimeEntryCreateRequest, TimeEntryUpdateRequest } from '../models/time-entry.model';
+import { HttpInterceptorFn, HttpRequest, HttpHandlerFn, HttpResponse } from '@angular/common/http';
+import { inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { of, switchMap, delay, catchError } from 'rxjs';
 
-@Injectable()
-export class MockHttpInterceptor implements HttpInterceptor {
-  private timeEntries: TimeEntry[] = [];
-  private nextId = 1;
-  private dataLoaded = false;
+export const mockHttpInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, next: HttpHandlerFn) => {
 
-  constructor(private http: HttpClient) {}
-
-  intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    const { url, method, body } = req;
-
-    if (!url.includes('/api/time-entries')) {
-      return next.handle(req);
-    }
-
-    if (!this.dataLoaded) {
-      return this.loadDataFromJson().pipe(
-        switchMap(() => this.handleRequest(req)),
-        delay(500)
-      );
-    }
-
-    return this.handleRequest(req).pipe(delay(500));
+  if (!req.url.includes('/api/time-entries')) {
+    return next(req);
   }
 
-  private loadDataFromJson(): Observable<any> {
-    return this.http.get<{timeEntries: TimeEntry[]}>('/assets/time-entries.json').pipe(
+  const http = inject(HttpClient);
+
+  if (req.method === 'GET' && req.url.endsWith('/api/time-entries')) {
+
+    return http.get<{timeEntries: any[]}>('/time-entries.json').pipe(
       switchMap(data => {
-        this.timeEntries = [...data.timeEntries];
-        this.nextId = Math.max(...this.timeEntries.map(entry => entry.id)) + 1;
-        this.dataLoaded = true;
-        return of(null);
+        return of(new HttpResponse({
+          status: 200,
+          body: data.timeEntries
+        }));
       }),
+      delay(500),
       catchError(error => {
-        console.error('Error loading mock data from JSON:', error);
-        this.timeEntries = [];
-        this.nextId = 1;
-        this.dataLoaded = true;
-        return of(null);
+        console.error('Error loading JSON:', error);
+        return of(new HttpResponse({
+          status: 200,
+          body: []
+        }));
       })
     );
   }
 
-  private handleRequest(req: HttpRequest<any>): Observable<HttpEvent<any>> {
-    const { url, method, body } = req;
+  if (req.method === 'POST' && req.url.endsWith('/api/time-entries')) {
+    const newEntry = {
+      id: Date.now(),
+      ...(req.body as any)
+    };
 
-    if (method === 'GET' && url.endsWith('/api/time-entries')) {
-      return of(new HttpResponse({
-        status: 200,
-        body: [...this.timeEntries]
-      }));
-    }
-
-    if (method === 'GET' && url.match(/\/api\/time-entries\/\d+$/)) {
-      const id = parseInt(url.split('/').pop() || '0');
-      const entry = this.timeEntries.find(e => e.id === id);
-
-      if (entry) {
-        return of(new HttpResponse({
-          status: 200,
-          body: entry
-        }));
-      } else {
-        return throwError(() => new HttpResponse({
-          status: 404,
-          body: { message: 'Time entry not found' }
-        }));
-      }
-    }
-
-    if (method === 'POST' && url.endsWith('/api/time-entries')) {
-      const createRequest: TimeEntryCreateRequest = body;
-      const newEntry: TimeEntry = {
-        id: this.nextId++,
-        ...createRequest
-      };
-
-      this.timeEntries.push(newEntry);
-
-      return of(new HttpResponse({
-        status: 201,
-        body: newEntry
-      }));
-    }
-
-    if (method === 'PUT' && url.match(/\/api\/time-entries\/\d+$/)) {
-      const id = parseInt(url.split('/').pop() || '0');
-      const updateRequest: TimeEntryUpdateRequest = body;
-      const index = this.timeEntries.findIndex(e => e.id === id);
-
-      if (index !== -1) {
-        this.timeEntries[index] = { ...this.timeEntries[index], ...updateRequest };
-        return of(new HttpResponse({
-          status: 200,
-          body: this.timeEntries[index]
-        }));
-      } else {
-        return throwError(() => new HttpResponse({
-          status: 404,
-          body: { message: 'Time entry not found' }
-        }));
-      }
-    }
-
-    if (method === 'DELETE' && url.match(/\/api\/time-entries\/\d+$/)) {
-      const id = parseInt(url.split('/').pop() || '0');
-      const index = this.timeEntries.findIndex(e => e.id === id);
-
-      if (index !== -1) {
-        this.timeEntries.splice(index, 1);
-        return of(new HttpResponse({
-          status: 204,
-          body: null
-        }));
-      } else {
-        return throwError(() => new HttpResponse({
-          status: 404,
-          body: { message: 'Time entry not found' }
-        }));
-      }
-    }
-
-    return throwError(() => new HttpResponse({
-      status: 404,
-      body: { message: 'Endpoint not found' }
-    }));
+    return of(new HttpResponse({
+      status: 201,
+      body: newEntry
+    })).pipe(delay(300));
   }
-}
+
+  if (req.method === 'PUT' && req.url.match(/\/api\/time-entries\/\d+$/)) {
+    return of(new HttpResponse({
+      status: 200,
+      body: { id: parseInt(req.url.split('/').pop() || '0'), ...(req.body as any) }
+    })).pipe(delay(300));
+  }
+
+  if (req.method === 'DELETE' && req.url.match(/\/api\/time-entries\/\d+$/)) {
+    return of(new HttpResponse({
+      status: 204,
+      body: null
+    })).pipe(delay(300));
+  }
+
+  return next(req);
+};
