@@ -4,20 +4,12 @@ import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 import { MatSortModule, MatSort } from '@angular/material/sort';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { EntryFormDialogComponent } from '../entry-form-dialog/entry-form-dialog';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-
-export interface TimeEntry {
-  id: number;
-  date: string;
-  startTime: string;
-  endTime: string;
-  break: string;
-  total: string;
-  status: 'draft' | 'pending' | 'accepted' | 'rejected';
-  project: string;
-  description: string;
-}
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { HTTP_INTERCEPTORS } from '@angular/common/http';
+import { EntryFormDialogComponent } from '../entry-form-dialog/entry-form-dialog';
+import { JsonTimeEntryService } from '../services/json-time-entry.service';
+import { TimeEntry } from '../models/time-entry.model';
 
 @Component({
   selector: 'app-entry-table',
@@ -28,89 +20,51 @@ export interface TimeEntry {
     MatSortModule,
     MatIconModule,
     MatButtonModule,
-    MatDialogModule
+    MatDialogModule,
+    MatSnackBarModule
+  ],
+  providers: [
   ],
   templateUrl: './entry-table.component.html',
   styleUrls: ['./entry-table.component.css']
 })
 export class EntryTableComponent implements OnInit, AfterViewInit {
-  
+
   displayedColumns: string[] = ['date', 'startTime', 'endTime', 'break', 'total', 'status', 'actions'];
   dataSource = new MatTableDataSource<TimeEntry>();
-  
+  loading = false;
+
   @ViewChild(MatSort) sort!: MatSort;
 
-  constructor(private dialog: MatDialog) {}
-  
-  timeEntries: TimeEntry[] = [
-    {
-      id: 1,
-      date: '2025-07-03',
-      startTime: '09:00',
-      endTime: '17:30',
-      break: '1h 00m',
-      total: '7h 30m',
-      status: 'accepted',
-      project: 'Project Alpha',
-      description: 'Bug fixing and code review'
-    },
-    {
-      id: 2,
-      date: '2025-07-03',
-      startTime: '08:30',
-      endTime: '12:00',
-      break: '30m',
-      total: '3h 00m',
-      status: 'draft',
-      project: 'Project Beta',
-      description: 'UI development'
-    },
-    {
-      id: 3,
-      date: '2025-07-02',
-      startTime: '10:00',
-      endTime: '15:00',
-      break: '45m',
-      total: '4h 15m',
-      status: 'pending',
-      project: 'Project Gamma',
-      description: 'Database optimization'
-    },
-    {
-      id: 4,
-      date: '2025-07-02',
-      startTime: '14:00',
-      endTime: '18:00',
-      break: '15m',
-      total: '3h 45m',
-      status: 'accepted',
-      project: 'Project Alpha',
-      description: 'Testing and documentation'
-    },
-    {
-      id: 5,
-      date: '2025-07-01',
-      startTime: '09:15',
-      endTime: '17:00',
-      break: '1h 15m',
-      total: '6h 30m',
-      status: 'accepted',
-      project: 'Project Beta',
-      description: 'Feature implementation'
-    }
-  ];
+  constructor(
+    private dialog: MatDialog,
+    private timeEntryService: JsonTimeEntryService,
+    private snackBar: MatSnackBar
+  ) {}
 
-  selectedEntry: any = null;
-  isEditMode: boolean = false;
-  
   ngOnInit() {
-    this.dataSource.data = this.timeEntries;
+    this.loadTimeEntries();
   }
-  
+
   ngAfterViewInit() {
     this.dataSource.sort = this.sort;
   }
-  
+
+  loadTimeEntries() {
+    this.loading = true;
+    this.timeEntryService.getTimeEntries().subscribe({
+      next: (entries) => {
+        this.dataSource.data = entries;
+        this.loading = false;
+      },
+      error: (error) => {
+        console.error('Error loading time entries:', error);
+        this.showSnackBar('Error loading time entries');
+        this.loading = false;
+      }
+    });
+  }
+
   getStatusIcon(status: string): string {
     switch(status) {
       case 'accepted': return 'check_circle';
@@ -120,7 +74,7 @@ export class EntryTableComponent implements OnInit, AfterViewInit {
       default: return 'help';
     }
   }
-  
+
   getStatusText(status: string): string {
     switch(status) {
       case 'accepted': return 'Acceptat';
@@ -158,16 +112,20 @@ export class EntryTableComponent implements OnInit, AfterViewInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        const newEntry: TimeEntry = {
-          id: this.timeEntries.length + 1,
-          ...result
-        };
-        this.timeEntries.push(newEntry);
-        this.dataSource.data = [...this.timeEntries];
+        this.timeEntryService.createTimeEntry(result).subscribe({
+          next: (newEntry) => {
+            this.loadTimeEntries();
+            this.showSnackBar('Time entry created successfully');
+          },
+          error: (error) => {
+            console.error('Error creating time entry:', error);
+            this.showSnackBar('Error creating time entry');
+          }
+        });
       }
     });
   }
-  
+
   editEntry(entry: TimeEntry) {
     const dialogRef = this.dialog.open(EntryFormDialogComponent, {
       width: '400px',
@@ -176,18 +134,40 @@ export class EntryTableComponent implements OnInit, AfterViewInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        const index = this.timeEntries.findIndex(e => e.id === entry.id);
-        if (index !== -1) {
-          this.timeEntries[index] = { ...this.timeEntries[index], ...result };
-          this.dataSource.data = [...this.timeEntries];
-        }
+        this.timeEntryService.updateTimeEntry(entry.id, result).subscribe({
+          next: (updatedEntry) => {
+            this.loadTimeEntries();
+            this.showSnackBar('Time entry updated successfully');
+          },
+          error: (error) => {
+            console.error('Error updating time entry:', error);
+            this.showSnackBar('Error updating time entry');
+          }
+        });
       }
     });
   }
 
   deleteEntry(entry: TimeEntry) {
-    console.log('Delete entry:', entry);
-    this.timeEntries = this.timeEntries.filter(e => e.id !== entry.id);
-    this.dataSource.data = [...this.timeEntries];
+    if (confirm('Are you sure you want to delete this time entry?')) {
+      this.timeEntryService.deleteTimeEntry(entry.id).subscribe({
+        next: () => {
+          this.loadTimeEntries();
+          this.showSnackBar('Time entry deleted successfully');
+        },
+        error: (error) => {
+          console.error('Error deleting time entry:', error);
+          this.showSnackBar('Error deleting time entry');
+        }
+      });
+    }
+  }
+
+  private showSnackBar(message: string) {
+    this.snackBar.open(message, 'Close', {
+      duration: 3000,
+      horizontalPosition: 'right',
+      verticalPosition: 'top'
+    });
   }
 }
