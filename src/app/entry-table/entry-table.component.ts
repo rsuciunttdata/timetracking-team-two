@@ -6,7 +6,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { EntryFormDialogComponent } from '../entry-form-dialog/entry-form-dialog';
 import { JsonTimeEntryService } from '../services/json-time-entry.service';
 import { TimeEntry } from '../models/time-entry.model';
@@ -22,8 +21,6 @@ import { TimeEntry } from '../models/time-entry.model';
     MatButtonModule,
     MatDialogModule,
     MatSnackBarModule
-  ],
-  providers: [
   ],
   templateUrl: './entry-table.component.html',
   styleUrls: ['./entry-table.component.css']
