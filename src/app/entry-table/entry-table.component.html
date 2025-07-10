@@ -15,13 +15,13 @@
         </button>
 
       </div>
-      
+
       <!-- Table -->
       <div class="overflow-x-auto">
         <table mat-table [dataSource]="dataSource" matSort class="w-full">
           <!-- Date Column -->
           <ng-container matColumnDef="date">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header 
+            <th mat-header-cell *matHeaderCellDef mat-sort-header
               class="bg-gray-50 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-200 w-32 min-w-32">
             Dată
           </th>
@@ -32,10 +32,10 @@
               </div>
             </td>
           </ng-container>
-          
+
           <!-- Start Time Column -->
           <ng-container matColumnDef="startTime">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header 
+            <th mat-header-cell *matHeaderCellDef mat-sort-header
                 class="bg-gray-50 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-200">
               Ora început
             </th>
@@ -46,10 +46,10 @@
               </div>
             </td>
           </ng-container>
-          
+
           <!-- End Time Column -->
           <ng-container matColumnDef="endTime">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header 
+            <th mat-header-cell *matHeaderCellDef mat-sort-header
                 class="bg-gray-50 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-200">
               Ora sfârșit
             </th>
@@ -60,10 +60,10 @@
               </div>
             </td>
           </ng-container>
-          
+
           <!-- Break Column -->
           <ng-container matColumnDef="break">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header 
+            <th mat-header-cell *matHeaderCellDef mat-sort-header
                 class="bg-gray-50 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-200">
               Pauză
             </th>
@@ -74,10 +74,10 @@
               </div>
             </td>
           </ng-container>
-          
+
           <!-- Total Column -->
           <ng-container matColumnDef="total">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header 
+            <th mat-header-cell *matHeaderCellDef mat-sort-header
                 class="bg-gray-50 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-200">
               Total
             </th>
@@ -88,36 +88,36 @@
               </div>
             </td>
           </ng-container>
-          
+
           <!-- Status Column -->
           <ng-container matColumnDef="status">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header 
+            <th mat-header-cell *matHeaderCellDef mat-sort-header
                 class="bg-gray-50 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-200">
               Stare
             </th>
             <td mat-cell *matCellDef="let entry" class="px-6 py-4 whitespace-nowrap border-b border-gray-100">
-              <span [ngClass]="getStatusClasses(entry.status)" 
+              <span [ngClass]="getStatusClasses(entry.status)"
                     class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">
                 <mat-icon class="text-xs mr-1">{{ getStatusIcon(entry.status) }}</mat-icon>
                 {{ getStatusText(entry.status) }}
               </span>
             </td>
           </ng-container>
-          
+
           <!-- Actions Column -->
           <ng-container matColumnDef="actions">
-            <th mat-header-cell *matHeaderCellDef 
+            <th mat-header-cell *matHeaderCellDef
                 class="bg-gray-50 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-200">
               Acțiuni
             </th>
             <td mat-cell *matCellDef="let entry" class="px-6 py-4 whitespace-nowrap border-b border-gray-100">
               <div class="flex items-center space-x-2">
-                <button (click)="editEntry(entry)" 
+                <button (click)="editEntry(entry)"
                         class="text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg p-2 transition-colors"
                         title="Editare">
                   <mat-icon class="text-sm">edit</mat-icon>
                 </button>
-                <button (click)="deleteEntry(entry)" 
+                <button (click)="deleteEntry(entry)"
                         class="text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg p-2 transition-colors"
                         title="Ștergere">
                   <mat-icon class="text-sm">delete</mat-icon>
@@ -125,13 +125,13 @@
               </div>
             </td>
           </ng-container>
-          
+
           <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-          <tr mat-row *matRowDef="let row; columns: displayedColumns;" 
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"
               class="hover:bg-gray-50 transition-colors cursor-pointer"></tr>
         </table>
       </div>
-      
+
       <!-- Table Footer -->
       <div class="px-6 py-3 bg-gray-50 border-t border-gray-200">
         <div class="flex items-center justify-between">
