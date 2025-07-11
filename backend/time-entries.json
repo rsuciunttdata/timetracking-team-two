@@ -65,6 +65,18 @@
       "status": "rejected",
       "project": "Project Delta",
       "description": "Initial research and planning for new microservice"
+    },
+    {
+      "id": 9,
+      "date": "2025-07-11",
+      "project": "",
+      "startTime": "11:37",
+      "endTime": "15:37",
+      "break": "45m",
+      "status": "pending",
+      "rejectionMessage": "",
+      "total": "195",
+      "description": ""
     }
   ]
 }

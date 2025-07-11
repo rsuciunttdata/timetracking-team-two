@@ -1,7 +1,7 @@
 
 <div class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
   <div class="w-full max-w-4xl bg-white rounded-3xl shadow-2xl transform transition-all duration-300 scale-100 animate-in slide-in-from-bottom-4">
-    
+
     <div class="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-t-3xl px-8 py-6">
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-3">
@@ -13,9 +13,9 @@
             <p class="text-blue-100 text-sm">Track your work hours</p>
           </div>
         </div>
-        <button 
-          type="button" 
-          (click)="cancel()" 
+        <button
+          type="button"
+          (click)="cancel()"
           class="p-2 hover:bg-white/20 rounded-xl transition-colors duration-200"
         >
           <mat-icon class="text-white">close</mat-icon>
@@ -26,10 +26,10 @@
     <!-- Form Content -->
     <div class="p-8">
       <form (ngSubmit)="submit()" #entryForm="ngForm" class="space-y-6">
-        
+
         <!-- Primary Information Row -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          
+
           <!-- Date Input -->
           <div class="input-group">
             <label for="date" class="floating-label block text-sm font-semibold text-gray-700 mb-2">
@@ -46,12 +46,12 @@
             />
           </div>
 
-          
+
         </div>
 
         <!-- Time Information Row -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-          
+
           <!-- Start Time -->
           <div class="input-group">
             <label for="startTime" class="floating-label block text-sm font-semibold text-gray-700 mb-2">
@@ -125,7 +125,7 @@
               class="p-4 border-2 rounded-xl font-medium"
             >
               <div class="flex items-start gap-3">
-                <mat-icon 
+                <mat-icon
                   [ngClass]="{
                     'text-amber-500': entry.status === 'pending',
                     'text-red-500': entry.status === 'rejected',
@@ -160,7 +160,7 @@
             <mat-icon class="text-base">info</mat-icon>
             All fields marked with * are required
           </div>
-          
+
           <div class="flex gap-3">
             <button
               type="button"
@@ -170,11 +170,10 @@
               <mat-icon class="text-base">close</mat-icon>
               Cancel
             </button>
-            
+
             <button
               type="submit"
               [disabled]="!entryForm.form.valid"
-              (click)="submit()"
               class="px-8 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-xl transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center gap-2"
             >
               <mat-icon class="text-base">save</mat-icon>

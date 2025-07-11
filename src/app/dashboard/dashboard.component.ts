@@ -33,6 +33,9 @@ export interface WeeklyStats {
   styleUrls: ['./dashboard.component.css'],
 })
 export class DashboardComponent {
+  private static instanceCount = 0;
+  private instanceId: number;
+
   allEntries: EntryTableComponent[] = [];
 
   weeklyData: DayData[] = [
@@ -87,7 +90,6 @@ export class DashboardComponent {
     }
   ];
 
-  // Weekly statistics
   weeklyStats: WeeklyStats = {
     totalHours: 43.6,
     avgHoursPerDay: 6.2,
@@ -96,7 +98,6 @@ export class DashboardComponent {
     activeProjects: 5
   };
 
-  // Current day stats (for the stats cards)
   todayStats = {
     hoursToday: 8.5,
     hoursYesterday: 6.5,
@@ -106,7 +107,6 @@ export class DashboardComponent {
     efficiencyYesterday: 80
   };
 
-  // Project progress data
   projectProgress = [
     {
       name: 'Project Alpha',
@@ -131,7 +131,6 @@ export class DashboardComponent {
     }
   ];
 
-  // Recent activity data
   recentActivity = [
     {
       action: 'Started working on Bug Fix',
@@ -167,7 +166,6 @@ export class DashboardComponent {
     }
   ];
 
-  // Time breakdown by category
   timeBreakdown = [
     { category: 'Development', hours: 24.5, percentage: 56 },
     { category: 'Meetings', hours: 8.2, percentage: 19 },
@@ -176,9 +174,11 @@ export class DashboardComponent {
     { category: 'Learning', hours: 1.0, percentage: 2 }
   ];
 
-  
+  constructor() {
+    this.instanceId = ++DashboardComponent.instanceCount;
+    console.log(`DashboardComponent constructed [instance ${this.instanceId}]`);
+  }
 
-  // Helper methods
   getHoursIncrease(): number {
     return this.todayStats.hoursToday - this.todayStats.hoursYesterday;
   }
@@ -192,7 +192,7 @@ export class DashboardComponent {
   }
 
   getMostProductiveDay(): string {
-    return this.weeklyData.reduce((prev, current) => 
+    return this.weeklyData.reduce((prev, current) =>
       prev.hours > current.hours ? prev : current
     ).day;
   }
@@ -202,26 +202,22 @@ export class DashboardComponent {
   }
 
   getAverageHoursPerDay(): number {
-    const workDays = this.weeklyData.filter(day => 
+    const workDays = this.weeklyData.filter(day =>
       ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'].includes(day.day)
     );
     return workDays.reduce((sum, day) => sum + day.hours, 0) / workDays.length;
   }
 
-  // Format hours for display
   formatHours(hours: number): string {
     const h = Math.floor(hours);
     const m = Math.round((hours - h) * 60);
     return `${h}h ${m}m`;
   }
 
-  // Get color class for progress bars
   getProgressColor(progress: number): string {
     if (progress >= 80) return 'bg-green-500';
     if (progress >= 50) return 'bg-blue-500';
     if (progress >= 25) return 'bg-yellow-500';
     return 'bg-red-500';
   }
-
-  
 }
