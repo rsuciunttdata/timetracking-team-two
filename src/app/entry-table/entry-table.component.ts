@@ -40,6 +40,8 @@ export class EntryTableComponent implements OnInit, AfterViewInit {
   private static instanceCount = 0;
   private instanceId: number;
 
+  private isDialogOpen = false;
+
   constructor(
     private dialog: MatDialog,
     private timeEntryService: TimeEntryService,
@@ -117,62 +119,49 @@ export class EntryTableComponent implements OnInit, AfterViewInit {
   }
 
   addEntry() {
+    if (this.isDialogOpen) {
+      return;
+    }
+
+    this.isDialogOpen = true;
+
     const dialogRef = this.dialog.open(EntryFormDialogComponent, {
-      width: '400px',
-      disableClose: true
+      width: '500px',
+      disableClose: true,
+      data: null
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        this.loading = true;
+      this.isDialogOpen = false;
 
-        this.timeEntryService.createTimeEntry(result).subscribe({
-          next: (newEntry) => {
-            this.loadTimeEntries();
-            this.showSnackBar(`Entry created successfully! ID: ${newEntry.id}`, 'success');
-          },
-          error: (error) => {
-            console.error('Error creating time entry:', error);
-            this.showSnackBar('Error creating time entry. Please try again.', 'error');
-            this.loading = false;
-          }
-        });
+      if (result) {
+        this.loadTimeEntries();
       }
     });
   }
 
   editEntry(entry: TimeEntry) {
     const dialogRef = this.dialog.open(EntryFormDialogComponent, {
-      width: '400px',
-      data: { entry, isEditMode: true },
-      disableClose: true
+      width: '500px',
+      disableClose: true,
+      data: {
+        entry: entry,
+        isEditMode: true
+      }
     });
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.loading = true;
-
-        this.timeEntryService.updateTimeEntry(entry.id, result).subscribe({
-          next: (updatedEntry) => {
-            this.loadTimeEntries();
-            this.showSnackBar(`Entry updated successfully!`, 'success');
-          },
-          error: (error) => {
-            console.error('Error updating time entry:', error);
-            this.showSnackBar('Error updating time entry. Please try again.', 'error');
-            this.loading = false;
-          }
-        });
+        this.loadTimeEntries();
       }
     });
   }
 
   deleteEntry(entry: TimeEntry) {
-
     const dialogData: ConfirmationDialogData = {
       title: 'Delete Time Entry',
       message: `Are you sure you want to delete this time entry?`,
-      subMessage: `This action cannot be undone.`,
+      subMessage: `Date: ${entry.date}, Project: ${entry.project || 'N/A'}`,
       confirmText: 'Delete Entry',
       cancelText: 'Keep Entry',
       type: 'danger',
@@ -185,7 +174,6 @@ export class EntryTableComponent implements OnInit, AfterViewInit {
     });
 
     dialogRef.afterClosed().subscribe(confirmed => {
-
       if (confirmed) {
         this.loading = true;
 
@@ -200,7 +188,6 @@ export class EntryTableComponent implements OnInit, AfterViewInit {
             this.loading = false;
           }
         });
-      } else {
       }
     });
   }

@@ -102,7 +102,7 @@
         </div>
 
         <!-- Status Section -->
-        <div class="bg-gradient-to-r from-gray-50 to-gray-100 rounded-2xl p-6 border border-gray-200">
+        <!-- <div class="bg-gradient-to-r from-gray-50 to-gray-100 rounded-2xl p-6 border border-gray-200">
           <div class="flex items-center justify-between mb-4">
             <h3 class="text-lg font-semibold text-gray-800 flex items-center gap-2">
               <mat-icon class="text-gray-600">info</mat-icon>
@@ -114,13 +114,12 @@
             </div>
           </div>
 
-          <!-- Status Message -->
           <div class="mt-4">
             <div
               [ngClass]="{
                 'bg-amber-50 border-amber-300 text-amber-800': entry.status === 'pending',
                 'bg-red-50 border-red-300 text-red-700': entry.status === 'rejected',
-                'bg-emerald-50 border-emerald-300 text-emerald-700': entry.status === 'approved'
+                'bg-emerald-50 border-emerald-300 text-emerald-700': entry.status
               }"
               class="p-4 border-2 rounded-xl font-medium"
             >
@@ -129,21 +128,21 @@
                   [ngClass]="{
                     'text-amber-500': entry.status === 'pending',
                     'text-red-500': entry.status === 'rejected',
-                    'text-emerald-500': entry.status === 'approved'
+                    'text-emerald-500': entry.status
                   }"
                   class="mt-0.5"
                 >
-                  {{ entry.status === 'rejected' ? 'error' : entry.status === 'approved' ? 'check_circle' : 'hourglass_top' }}
+                  {{ entry.status === 'rejected' ? 'error' : entry.status ? 'check_circle' : 'hourglass_top' }}
                 </mat-icon>
                 <div>
                   <p class="font-semibold mb-1">
-                    {{ entry.status === 'rejected' ? 'Entry Rejected' : entry.status === 'approved' ? 'Entry Approved' : 'Awaiting Review' }}
+                    {{ entry.status === 'rejected' ? 'Entry Rejected' : entry.status ? 'Entry Approved' : 'Awaiting Review' }}
                   </p>
                   <p class="text-sm opacity-90">
                     {{
                       entry.status === 'rejected'
                         ? entry.rejectionMessage || 'Your entry was not approved. Please review and resubmit.'
-                        : entry.status === 'approved'
+                        : entry.status
                         ? 'Your time entry has been approved and processed.'
                         : 'Your entry is being reviewed by your supervisor.'
                     }}
@@ -152,7 +151,7 @@
               </div>
             </div>
           </div>
-        </div>
+        </div> -->
 
         <!-- Action Buttons -->
         <div class="flex items-center justify-between pt-6 border-t border-gray-200">
