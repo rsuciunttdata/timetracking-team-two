@@ -9,7 +9,7 @@ import { TimeEntry, TimeEntryCreateRequest, TimeEntryUpdateRequest } from '../mo
 export class TimeEntryService {
   private readonly apiUrl = '/api/time-entries';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   getTimeEntries(): Observable<TimeEntry[]> {
     return this.http.get<TimeEntry[]>(this.apiUrl);
@@ -25,6 +25,10 @@ export class TimeEntryService {
 
   updateTimeEntry(id: number, entry: TimeEntryUpdateRequest): Observable<TimeEntry> {
     return this.http.put<TimeEntry>(`${this.apiUrl}/${id}`, entry);
+  }
+
+  sendForApproval(id: number): Observable<TimeEntry> {
+    return this.http.patch<TimeEntry>(`${this.apiUrl}/${id}/send-for-approval`, {});
   }
 
   deleteTimeEntry(id: number): Observable<void> {

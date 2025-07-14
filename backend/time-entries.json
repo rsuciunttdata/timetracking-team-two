@@ -7,9 +7,10 @@
       "endTime": "17:30",
       "break": "1h 00m",
       "total": "7h 30m",
-      "status": "accepted",
+      "status": "pending",
       "project": "Project Alpha",
-      "description": "Bug fixing and code review for user authentication module"
+      "description": "Bug fixing and code review for user authentication module",
+      "submittedForApprovalAt": "2025-07-14T12:49:46.950Z"
     },
     {
       "id": 2,
@@ -18,9 +19,10 @@
       "endTime": "12:00",
       "break": "30m",
       "total": "3h 00m",
-      "status": "draft",
+      "status": "pending",
       "project": "Project Beta",
-      "description": "UI development for dashboard components"
+      "description": "UI development for dashboard components",
+      "submittedForApprovalAt": "2025-07-14T12:44:55.623Z"
     },
     {
       "id": 3,
@@ -31,7 +33,8 @@
       "total": "4h 15m",
       "status": "pending",
       "project": "Project Gamma",
-      "description": "Database optimization and query performance tuning"
+      "description": "Database optimization and query performance tuning",
+      "submittedForApprovalAt": "2025-07-14T12:44:55.623Z"
     },
     {
       "id": 4,
@@ -61,10 +64,22 @@
       "startTime": "13:00",
       "endTime": "16:30",
       "break": "0h 30m",
-      "total": "3h 00m",
-      "status": "rejected",
+      "total": "3h 0m",
+      "status": "draft",
       "project": "Project Delta",
       "description": "Initial research and planning for new microservice"
+    },
+    {
+      "id": 7,
+      "date": "2025-07-14",
+      "project": "",
+      "startTime": "16:04",
+      "endTime": "21:03",
+      "break": "",
+      "status": "draft",
+      "rejectionMessage": "",
+      "description": "",
+      "total": "4h 59m"
     }
   ]
 }
