@@ -8,8 +8,15 @@ export const mockHttpInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>
 
   const backendUrl = 'http://localhost:3001';
 
+  let modifiedUrl = req.url;
+  if (req.url.includes('/api/time-entries/') && req.url.includes('/send-for-approval')) {
+    modifiedUrl = req.url.replace('/api/time-entries', `${backendUrl}/api/time-entries`);
+  } else {
+    modifiedUrl = req.url.replace('/api/time-entries', `${backendUrl}/api/time-entries`);
+  }
+
   const modifiedReq = req.clone({
-    url: req.url.replace('/api/time-entries', `${backendUrl}/api/time-entries`),
+    url: modifiedUrl,
     setHeaders: {
       'Content-Type': 'application/json'
     }

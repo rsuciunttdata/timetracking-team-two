@@ -1,5 +1,4 @@
 <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-      <!-- Header -->
       <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
         <div class="flex items-center space-x-3">
           <mat-icon class="text-blue-600">schedule</mat-icon>
@@ -13,13 +12,74 @@
             <mat-icon class="text-sm">add</mat-icon>
             <span class="font-medium">Add Entry</span>
         </button>
-
       </div>
 
-      <!-- Table -->
+      <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
+        <div class="flex items-center space-x-4">
+          <div class="flex items-center space-x-2">
+            <mat-icon class="text-gray-500">filter_list</mat-icon>
+            <span class="text-sm font-medium text-gray-700">Filters:</span>
+          </div>
+
+          <div class="flex items-center space-x-2">
+            <label class="text-xs text-gray-600 font-medium">From:</label>
+            <input
+              type="date"
+              [(ngModel)]="filters.dateFrom"
+              (ngModelChange)="onFilterChange()"
+              class="px-3 py-1 text-sm border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
+            />
+          </div>
+
+          <div class="flex items-center space-x-2">
+            <label class="text-xs text-gray-600 font-medium">To:</label>
+            <input
+              type="date"
+              [(ngModel)]="filters.dateTo"
+              (ngModelChange)="onFilterChange()"
+              class="px-3 py-1 text-sm border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
+            />
+          </div>
+
+          <div class="flex items-center space-x-2">
+            <label class="text-xs text-gray-600 font-medium">Status:</label>
+            <mat-form-field appearance="outline" class="filter-select">
+              <mat-select
+                multiple
+                [(ngModel)]="filters.statuses"
+                (ngModelChange)="onFilterChange()"
+                placeholder="All statuses"
+                class="text-sm"
+              >
+                <mat-option *ngFor="let status of statusOptions" [value]="status.value">
+                  <div class="flex items-center space-x-2">
+                    <mat-icon class="text-sm" [ngClass]="getStatusIconColor(status.value)">
+                      {{ getStatusIcon(status.value) }}
+                    </mat-icon>
+                    <span>{{ status.label }}</span>
+                  </div>
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <button
+            (click)="clearFilters()"
+            class="px-3 py-1 text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-200 border border-gray-300 rounded-lg transition-colors flex items-center space-x-1"
+          >
+            <mat-icon class="text-sm">clear</mat-icon>
+            <span>Clear</span>
+          </button>
+
+          <div class="ml-auto text-sm text-gray-600">
+            Showing <span class="font-medium">{{ dataSource.data.length }}</span>
+            of <span class="font-medium">{{ allEntries.length }}</span> entries
+          </div>
+        </div>
+      </div>
+
       <div class="overflow-x-auto">
         <table mat-table [dataSource]="dataSource" matSort class="w-full">
-          <!-- Date Column -->
           <ng-container matColumnDef="date">
             <th mat-header-cell *matHeaderCellDef mat-sort-header
               class="bg-gray-50 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-200 w-32 min-w-32">
@@ -33,7 +93,6 @@
             </td>
           </ng-container>
 
-          <!-- Start Time Column -->
           <ng-container matColumnDef="startTime">
             <th mat-header-cell *matHeaderCellDef mat-sort-header
                 class="bg-gray-50 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-200">
@@ -47,7 +106,6 @@
             </td>
           </ng-container>
 
-          <!-- End Time Column -->
           <ng-container matColumnDef="endTime">
             <th mat-header-cell *matHeaderCellDef mat-sort-header
                 class="bg-gray-50 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-200">
@@ -61,7 +119,6 @@
             </td>
           </ng-container>
 
-          <!-- Break Column -->
           <ng-container matColumnDef="break">
             <th mat-header-cell *matHeaderCellDef mat-sort-header
                 class="bg-gray-50 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-200">
@@ -75,7 +132,6 @@
             </td>
           </ng-container>
 
-          <!-- Total Column -->
           <ng-container matColumnDef="total">
             <th mat-header-cell *matHeaderCellDef mat-sort-header
                 class="bg-gray-50 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-200">
@@ -89,7 +145,6 @@
             </td>
           </ng-container>
 
-          <!-- Status Column -->
           <ng-container matColumnDef="status">
             <th mat-header-cell *matHeaderCellDef mat-sort-header
                 class="bg-gray-50 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-200">
@@ -104,7 +159,6 @@
             </td>
           </ng-container>
 
-          <!-- Actions Column -->
           <ng-container matColumnDef="actions">
             <th mat-header-cell *matHeaderCellDef
                 class="bg-gray-50 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-200">
@@ -112,15 +166,40 @@
             </th>
             <td mat-cell *matCellDef="let entry" class="px-6 py-4 whitespace-nowrap border-b border-gray-100">
               <div class="flex items-center space-x-2">
-                <button (click)="editEntry(entry)"
+
+                <button *ngIf="canEditEntry(entry)"
+                        (click)="editEntry(entry)"
                         class="text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg p-2 transition-colors"
                         title="Editare">
                   <mat-icon class="text-sm">edit</mat-icon>
                 </button>
-                <button (click)="deleteEntry(entry)"
+
+                <button *ngIf="!canEditEntry(entry)"
+                        disabled
+                        class="text-gray-400 cursor-not-allowed rounded-lg p-2"
+                        title="Nu se poate edita - intrarea este în curs de aprobare sau aprobată">
+                  <mat-icon class="text-sm">edit_off</mat-icon>
+                </button>
+
+                <button *ngIf="canEditEntry(entry)"
+                        (click)="deleteEntry(entry)"
                         class="text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg p-2 transition-colors"
                         title="Ștergere">
                   <mat-icon class="text-sm">delete</mat-icon>
+                </button>
+
+                <button *ngIf="!canEditEntry(entry)"
+                        disabled
+                        class="text-gray-400 cursor-not-allowed rounded-lg p-2"
+                        title="Nu se poate șterge - intrarea este în curs de aprobare sau aprobată">
+                  <mat-icon class="text-sm">delete_off</mat-icon>
+                </button>
+
+                <button *ngIf="canSendForApproval(entry)"
+                        (click)="sendForApproval(entry)"
+                        class="text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 rounded-lg p-2 transition-colors"
+                        title="Trimite pentru aprobare">
+                  <mat-icon class="text-sm">send</mat-icon>
                 </button>
               </div>
             </td>
@@ -132,11 +211,13 @@
         </table>
       </div>
 
-      <!-- Table Footer -->
       <div class="px-6 py-3 bg-gray-50 border-t border-gray-200">
         <div class="flex items-center justify-between">
           <div class="text-sm text-gray-700">
             Showing <span class="font-medium">{{ dataSource.data.length }}</span> entries
+            <span *ngIf="dataSource.data.length !== allEntries.length" class="text-gray-500">
+              (filtered from {{ allEntries.length }} total)
+            </span>
           </div>
           <div class="flex items-center space-x-2">
             <button class="px-3 py-1 border border-gray-300 rounded-md text-sm hover:bg-gray-50 transition-colors">

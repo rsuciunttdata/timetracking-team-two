@@ -1,5 +1,6 @@
 import { Component, ViewChild, OnInit, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 import { MatSortModule, MatSort } from '@angular/material/sort';
 import { MatIconModule } from '@angular/material/icon';
@@ -7,6 +8,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { EntryFormDialogComponent } from '../entry-form-dialog/entry-form-dialog';
 import { ConfirmationDialogComponent, ConfirmationDialogData } from '../confirmation-dialog/confirmation-dialog';
 import { TimeEntryService } from '../services/time-entry.service';
@@ -17,6 +21,7 @@ import { TimeEntry } from '../models/time-entry.model';
   standalone: true,
   imports: [
     CommonModule,
+    FormsModule,
     MatTableModule,
     MatSortModule,
     MatIconModule,
@@ -24,7 +29,9 @@ import { TimeEntry } from '../models/time-entry.model';
     MatDialogModule,
     MatSnackBarModule,
     MatProgressSpinnerModule,
-    ConfirmationDialogComponent
+    MatSelectModule,
+    MatFormFieldModule,
+    MatInputModule
   ],
   templateUrl: './entry-table.component.html',
   styleUrls: ['./entry-table.component.css']
@@ -33,13 +40,26 @@ export class EntryTableComponent implements OnInit, AfterViewInit {
 
   displayedColumns: string[] = ['date', 'startTime', 'endTime', 'break', 'total', 'status', 'actions'];
   dataSource = new MatTableDataSource<TimeEntry>();
+  allEntries: TimeEntry[] = [];
   loading = false;
+
+  filters = {
+    dateFrom: '',
+    dateTo: '',
+    statuses: [] as string[]
+  };
+
+  statusOptions = [
+    { value: 'draft', label: 'Draft' },
+    { value: 'pending', label: 'Pending' },
+    { value: 'accepted', label: 'Acceptat' },
+    { value: 'rejected', label: 'Respins' }
+  ];
 
   @ViewChild(MatSort) sort!: MatSort;
 
   private static instanceCount = 0;
   private instanceId: number;
-
   private isDialogOpen = false;
 
   constructor(
@@ -66,7 +86,8 @@ export class EntryTableComponent implements OnInit, AfterViewInit {
 
     this.timeEntryService.getTimeEntries().subscribe({
       next: (entries) => {
-        this.dataSource.data = entries;
+        this.allEntries = entries;
+        this.applyFilters();
         this.loading = false;
         this.showSnackBar(`Loaded ${entries.length} entries`, 'success');
       },
@@ -76,6 +97,44 @@ export class EntryTableComponent implements OnInit, AfterViewInit {
         this.loading = false;
       }
     });
+  }
+
+  applyFilters() {
+    let filteredEntries = [...this.allEntries];
+
+    if (this.filters.dateFrom) {
+      filteredEntries = filteredEntries.filter(entry =>
+        entry.date >= this.filters.dateFrom
+      );
+    }
+
+    if (this.filters.dateTo) {
+      filteredEntries = filteredEntries.filter(entry =>
+        entry.date <= this.filters.dateTo
+      );
+    }
+
+    if (this.filters.statuses.length > 0) {
+      filteredEntries = filteredEntries.filter(entry =>
+        this.filters.statuses.includes(entry.status)
+      );
+    }
+
+    this.dataSource.data = filteredEntries;
+  }
+
+  clearFilters() {
+    this.filters = {
+      dateFrom: '',
+      dateTo: '',
+      statuses: []
+    };
+    this.applyFilters();
+    this.showSnackBar('Filters cleared', 'info');
+  }
+
+  onFilterChange() {
+    this.applyFilters();
   }
 
   getStatusIcon(status: string): string {
@@ -118,6 +177,14 @@ export class EntryTableComponent implements OnInit, AfterViewInit {
     }
   }
 
+  canEditEntry(entry: TimeEntry): boolean {
+    return entry.status === 'draft' || entry.status === 'rejected';
+  }
+
+  canSendForApproval(entry: TimeEntry): boolean {
+    return entry.status === 'draft';
+  }
+
   addEntry() {
     if (this.isDialogOpen) {
       return;
@@ -141,6 +208,11 @@ export class EntryTableComponent implements OnInit, AfterViewInit {
   }
 
   editEntry(entry: TimeEntry) {
+    if (!this.canEditEntry(entry)) {
+      this.showSnackBar('Cannot edit entry that is pending approval or already approved', 'error');
+      return;
+    }
+
     const dialogRef = this.dialog.open(EntryFormDialogComponent, {
       width: '500px',
       disableClose: true,
@@ -152,12 +224,31 @@ export class EntryTableComponent implements OnInit, AfterViewInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.loadTimeEntries();
+        if (entry.status === 'rejected') {
+          const updatedEntry = { ...result, status: 'draft' };
+          this.timeEntryService.updateTimeEntry(entry.id, updatedEntry).subscribe({
+            next: () => {
+              this.loadTimeEntries();
+              this.showSnackBar('Entry updated and moved back to draft status', 'success');
+            },
+            error: (error) => {
+              console.error('Error updating entry status:', error);
+              this.loadTimeEntries();
+            }
+          });
+        } else {
+          this.loadTimeEntries();
+        }
       }
     });
   }
 
   deleteEntry(entry: TimeEntry) {
+    if (!this.canEditEntry(entry)) {
+      this.showSnackBar('Cannot delete entry that is pending approval or already approved', 'error');
+      return;
+    }
+
     const dialogData: ConfirmationDialogData = {
       title: 'Delete Time Entry',
       message: `Are you sure you want to delete this time entry?`,
@@ -185,6 +276,46 @@ export class EntryTableComponent implements OnInit, AfterViewInit {
           error: (error) => {
             console.error('Error deleting time entry:', error);
             this.showSnackBar('Error deleting time entry. Please try again.', 'error');
+            this.loading = false;
+          }
+        });
+      }
+    });
+  }
+
+  sendForApproval(entry: TimeEntry) {
+    if (!this.canSendForApproval(entry)) {
+      this.showSnackBar('Only draft entries can be sent for approval', 'error');
+      return;
+    }
+
+    const dialogData: ConfirmationDialogData = {
+      title: 'Send for Approval',
+      message: `Are you sure you want to send this time entry for approval?`,
+      subMessage: `Once sent, you won't be able to edit or delete this entry until it's processed.`,
+      confirmText: 'Send for Approval',
+      cancelText: 'Keep as Draft',
+      type: 'warning',
+      icon: 'send'
+    };
+
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      width: '500px',
+      data: dialogData
+    });
+
+    dialogRef.afterClosed().subscribe(confirmed => {
+      if (confirmed) {
+        this.loading = true;
+
+        this.timeEntryService.sendForApproval(entry.id).subscribe({
+          next: (updatedEntry) => {
+            this.loadTimeEntries();
+            this.showSnackBar(`Entry sent for approval successfully!`, 'success');
+          },
+          error: (error) => {
+            console.error('Error sending entry for approval:', error);
+            this.showSnackBar('Error sending entry for approval. Please try again.', 'error');
             this.loading = false;
           }
         });

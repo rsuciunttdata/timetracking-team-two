@@ -117,6 +117,45 @@ app.put('/api/time-entries/:id', async (req, res) => {
   }
 });
 
+app.patch('/api/time-entries/:id/send-for-approval', async (req, res) => {
+  try {
+    const data = await readDataFile();
+    const entryIndex = data.timeEntries.findIndex(e => e.id === parseInt(req.params.id));
+
+    if (entryIndex === -1) {
+      return res.status(404).json({ error: 'Entry not found' });
+    }
+
+    const entry = data.timeEntries[entryIndex];
+
+    if (entry.status !== 'draft') {
+      return res.status(400).json({
+        error: 'Only draft entries can be sent for approval',
+        currentStatus: entry.status
+      });
+    }
+
+    const updatedEntry = {
+      ...entry,
+      status: 'pending',
+      submittedForApprovalAt: new Date().toISOString()
+    };
+
+    data.timeEntries[entryIndex] = updatedEntry;
+
+    const success = await writeDataFile(data);
+    if (success) {
+      console.log('[Server] Entry sent for approval:', updatedEntry);
+      res.json(updatedEntry);
+    } else {
+      res.status(500).json({ error: 'Failed to send entry for approval' });
+    }
+  } catch (error) {
+    console.error('Error sending entry for approval:', error);
+    res.status(500).json({ error: 'Failed to send entry for approval' });
+  }
+});
+
 app.delete('/api/time-entries/:id', async (req, res) => {
   try {
     const data = await readDataFile();

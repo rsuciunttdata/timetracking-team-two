@@ -41,6 +41,7 @@ export class EntryFormDialogComponent {
   isEditMode = false;
   dialogTitle = 'Add New Entry';
   submitButtonText = 'Add Entry';
+  maxDate: string;
 
   constructor(
     public dialogRef: MatDialogRef<EntryFormDialogComponent>,
@@ -48,6 +49,8 @@ export class EntryFormDialogComponent {
     @Inject(MAT_DIALOG_DATA) public data: any,
     private timeEntryService: TimeEntryService
   ) {
+    this.maxDate = new Date().toISOString().split('T')[0];
+
     if (data && data.entry) {
       this.isEditMode = true;
       this.dialogTitle = 'Edit Entry';
@@ -78,8 +81,18 @@ export class EntryFormDialogComponent {
       return;
     }
 
+    if (!this.isValidDate()) {
+      this.showSnackBar('Date cannot be in the future. Please select today or a past date.', 'error');
+      return;
+    }
+
     if (this.entry.startTime >= this.entry.endTime) {
       this.showSnackBar('End time must be after start time', 'error');
+      return;
+    }
+
+    if (this.entry.break && !this.isValidBreakFormat()) {
+      this.showSnackBar('Break format must be like "1h 30m" (hours: 0-8, minutes: 0-59)', 'error');
       return;
     }
 
@@ -125,6 +138,36 @@ export class EntryFormDialogComponent {
 
   cancel() {
     this.dialogRef.close();
+  }
+
+  private isValidDate(): boolean {
+    if (!this.entry.date) return false;
+
+    const selectedDate = new Date(this.entry.date);
+    const today = new Date();
+
+    today.setHours(0, 0, 0, 0);
+    selectedDate.setHours(0, 0, 0, 0);
+
+    return selectedDate <= today;
+  }
+
+  private isValidBreakFormat(): boolean {
+    if (!this.entry.break || this.entry.break.trim() === '') {
+      return true;
+    }
+
+    const breakRegex = /^(\d+)h\s+(\d+)m$/;
+    const match = this.entry.break.trim().match(breakRegex);
+
+    if (!match) {
+      return false;
+    }
+
+    const hours = parseInt(match[1]);
+    const minutes = parseInt(match[2]);
+
+    return hours >= 0 && hours <= 8 && minutes >= 0 && minutes <= 59;
   }
 
   private calculateTotal(): string {
