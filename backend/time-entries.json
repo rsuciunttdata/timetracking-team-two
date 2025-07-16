@@ -129,6 +129,78 @@
       "rejectionMessage": "",
       "description": "",
       "total": "2h 0m"
+    },
+    {
+      "id": 12,
+      "date": "2025-07-16",
+      "project": "",
+      "startTime": "15:08",
+      "endTime": "16:08",
+      "break": "0h 30m",
+      "status": "draft",
+      "rejectionMessage": "",
+      "description": "",
+      "total": "0h 30m"
+    },
+    {
+      "id": 13,
+      "date": "2025-07-16",
+      "project": "",
+      "startTime": "15:21",
+      "endTime": "17:21",
+      "break": "45m",
+      "status": "draft",
+      "rejectionMessage": "",
+      "description": "",
+      "total": "1h 15m"
+    },
+    {
+      "id": 14,
+      "date": "2025-07-16",
+      "project": "",
+      "startTime": "16:50",
+      "endTime": "17:50",
+      "break": "45m",
+      "status": "draft",
+      "rejectionMessage": "",
+      "description": "",
+      "total": "0h 15m"
+    },
+    {
+      "id": 15,
+      "date": "2025-07-16",
+      "project": "",
+      "startTime": "16:51",
+      "endTime": "17:51",
+      "break": "0m",
+      "status": "draft",
+      "rejectionMessage": "",
+      "description": "",
+      "total": "1h 0m"
+    },
+    {
+      "id": 16,
+      "date": "2025-07-16",
+      "project": "",
+      "startTime": "17:15",
+      "endTime": "18:15",
+      "break": "45m",
+      "status": "draft",
+      "rejectionMessage": "",
+      "description": "",
+      "total": "0h 15m"
+    },
+    {
+      "id": 17,
+      "date": "2025-07-16",
+      "project": "",
+      "startTime": "23:15",
+      "endTime": "23:20",
+      "break": "2m",
+      "status": "draft",
+      "rejectionMessage": "",
+      "description": "",
+      "total": "0h 3m"
     }
   ]
 }
