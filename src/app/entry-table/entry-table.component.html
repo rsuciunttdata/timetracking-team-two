@@ -14,72 +14,91 @@
         </button>
       </div>
 
-      <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
-        <div class="flex items-center space-x-4">
-          <div class="flex items-center space-x-2">
-            <mat-icon class="text-gray-500">filter_list</mat-icon>
-            <span class="text-sm font-medium text-gray-700">Filters:</span>
-          </div>
+     <div class="px-6 py-5 bg-gradient-to-r from-slate-50 to-gray-50 border-b border-gray-200/60 backdrop-blur-sm">
+  <div class="flex items-center justify-between flex-wrap gap-4">
+    <!-- Left side - Filter controls -->
+    <div class="flex items-center flex-wrap gap-4">
+      <!-- Filter header -->
+      <div class="h-10 flex items-center gap-2 px-4 bg-white/80 rounded-lg border border-gray-200/50 shadow-sm">
+        <mat-icon class="text-slate-600 text-lg">filter_list</mat-icon>
+        <span class="text-sm font-semibold text-slate-700 tracking-wide">Filters</span>
+      </div>
 
-          <div class="flex items-center space-x-2">
-            <label class="text-xs text-gray-600 font-medium">From:</label>
-            <input
-              type="date"
-              [(ngModel)]="filters.dateFrom"
+      <!-- Date from filter -->
+      <div class="h-10 flex items-center gap-2 px-4 bg-white/60 rounded-lg border border-gray-200/50 shadow-sm backdrop-blur-sm">
+        <mat-icon class="text-slate-500 text-sm">date_range</mat-icon>
+        <label class="text-xs font-medium text-slate-600 uppercase tracking-wider">From:</label>
+        <input
+          type="date"
+          [(ngModel)]="filters.dateFrom"
+          (ngModelChange)="onFilterChange()"
+          class="px-2 py-1 text-sm bg-white/80 border border-gray-200 rounded focus:border-blue-400 focus:ring-1 focus:ring-blue-100 focus:outline-none transition-all duration-200 hover:border-gray-300"
+        />
+      </div>
+
+      <!-- Date to filter -->
+      <div class="h-10 flex items-center gap-2 px-4 bg-white/60 rounded-lg border border-gray-200/50 shadow-sm backdrop-blur-sm">
+        <mat-icon class="text-slate-500 text-sm">event</mat-icon>
+        <label class="text-xs font-medium text-slate-600 uppercase tracking-wider">To:</label>
+        <input
+          type="date"
+          [(ngModel)]="filters.dateTo"
+          (ngModelChange)="onFilterChange()"
+          class="px-2 py-1 text-sm bg-white/80 border border-gray-200 rounded focus:border-blue-400 focus:ring-1 focus:ring-blue-100 focus:outline-none transition-all duration-200 hover:border-gray-300"
+        />
+      </div>
+
+      <!-- Status filter -->
+      <div class="h-10 flex items-center gap-2 px-4 bg-white/60 rounded-lg border border-gray-200/50 shadow-sm backdrop-blur-sm">
+        <mat-icon class="text-slate-500 text-sm">tune</mat-icon>
+        <label class="text-xs font-medium text-slate-600 uppercase tracking-wider">Status:</label>
+        <div class="relative">
+          <mat-form-field appearance="outline" class="filter-select scale-35 -my-2">
+            <mat-select
+              multiple
+              [(ngModel)]="filters.statuses"
               (ngModelChange)="onFilterChange()"
-              class="px-3 py-1 text-sm border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
-            />
-          </div>
-
-          <div class="flex items-center space-x-2">
-            <label class="text-xs text-gray-600 font-medium">To:</label>
-            <input
-              type="date"
-              [(ngModel)]="filters.dateTo"
-              (ngModelChange)="onFilterChange()"
-              class="px-3 py-1 text-sm border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
-            />
-          </div>
-
-          <div class="flex items-center space-x-2">
-            <label class="text-xs text-gray-600 font-medium">Status:</label>
-            <mat-form-field appearance="outline" class="filter-select">
-              <mat-select
-                multiple
-                [(ngModel)]="filters.statuses"
-                (ngModelChange)="onFilterChange()"
-                placeholder="All statuses"
-                class="text-sm"
-              >
-                <mat-option *ngFor="let status of statusOptions" [value]="status.value">
-                  <div class="flex items-center space-x-2">
-                    <mat-icon class="text-sm" [ngClass]="getStatusIconColor(status.value)">
-                      {{ getStatusIcon(status.value) }}
-                    </mat-icon>
-                    <span>{{ status.label }}</span>
-                  </div>
-                </mat-option>
-              </mat-select>
-            </mat-form-field>
-          </div>
-
-          <button
-            (click)="clearFilters()"
-            class="px-3 py-1 text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-200 border border-gray-300 rounded-lg transition-colors flex items-center space-x-1"
-          >
-            <mat-icon class="text-sm">clear</mat-icon>
-            <span>Clear</span>
-          </button>
-
-          <div class="ml-auto text-sm text-gray-600">
-            Showing <span class="font-medium">{{ dataSource.data.length }}</span>
-            of <span class="font-medium">{{ allEntries.length }}</span> entries
-          </div>
+              placeholder="All statuses"
+              class="text-sm"
+            >
+              <mat-option *ngFor="let status of statusOptions" [value]="status.value">
+                <div class="flex items-center space-x-2">
+                  <mat-icon class="text-sm" [ngClass]="getStatusIconColor(status.value)">
+                    {{ getStatusIcon(status.value) }}
+                  </mat-icon>
+                  <span>{{ status.label }}</span>
+                </div>
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
         </div>
       </div>
 
+      <!-- Clear button -->
+      <button
+        (click)="clearFilters()"
+        class="group h-10 px-4 text-sm font-medium text-slate-600 hover:text-slate-800 bg-white/60 hover:bg-white/80 border border-gray-200/50 hover:border-gray-300 rounded-lg transition-all duration-200 flex items-center gap-2 shadow-sm hover:shadow-md backdrop-blur-sm"
+      >
+        <mat-icon class="text-sm group-hover:rotate-90 transition-transform duration-200">clear</mat-icon>
+        <span>Clear All</span>
+      </button>
+    </div>
+
+    <!-- Right side - Results counter -->
+    <div class="h-10 flex items-center gap-2 px-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200/50 rounded-lg shadow-sm">
+      <mat-icon class="text-blue-600 text-sm">insights</mat-icon>
+      <div class="text-sm text-slate-700">
+        Showing 
+        <span class="font-bold text-blue-600 mx-1">{{ dataSource.data.length }}</span>
+        of 
+        <span class="font-bold text-slate-800 mx-1">{{ allEntries.length }}</span>
+        entries
+      </div>
+    </div>
+  </div>
+</div>
       <div class="overflow-x-auto">
-        <table mat-table [dataSource]="dataSource" matSort class="w-full">
+        <table mat-table [dataSource]="dataSource" matSort class="w-full" *ngIf="dataSource.data.length > 0; else noEntries">
           <ng-container matColumnDef="date">
             <th mat-header-cell *matHeaderCellDef mat-sort-header
               class="bg-gray-50 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-200 w-32 min-w-32">
@@ -209,6 +228,14 @@
           <tr mat-row *matRowDef="let row; columns: displayedColumns;"
               class="hover:bg-gray-50 transition-colors cursor-pointer"></tr>
         </table>
+
+      <ng-template #noEntries>
+        <div class="flex flex-col items-center justify-center p-16 text-center text-gray-400 space-y-2">
+          <mat-icon class="text-1xl">info</mat-icon>
+          <p class="text-lg font-medium">No entries currently available.</p>
+          <p class="text-sm">Try adjusting your filters or add a new entry.</p>
+        </div>
+      </ng-template>
       </div>
 
       <div class="px-6 py-3 bg-gray-50 border-t border-gray-200">
@@ -219,14 +246,18 @@
               (filtered from {{ allEntries.length }} total)
             </span>
           </div>
-          <div class="flex items-center space-x-2">
-            <button class="px-3 py-1 border border-gray-300 rounded-md text-sm hover:bg-gray-50 transition-colors">
-              Previous
-            </button>
-            <button class="px-3 py-1 border border-gray-300 rounded-md text-sm hover:bg-gray-50 transition-colors">
-              Next
-            </button>
-          </div>
+        <div class="pagination-controls">
+          <button mat-button (click)="previousPage()" [disabled]="currentPage === 0">
+            Previous
+          </button>
+          <span>Page {{ currentPage + 1 }}</span>
+          <button mat-button (click)="nextPage()" 
+                  [disabled]="(currentPage + 1) * pageSize >= getFilteredEntries().length">
+            Next
+          </button>
+        </div>
+
+
         </div>
       </div>
     </div>

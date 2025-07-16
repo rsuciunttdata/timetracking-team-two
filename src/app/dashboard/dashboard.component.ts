@@ -3,7 +3,8 @@ import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { EntryTableComponent } from '../entry-table/entry-table.component';
-
+import { MatDialog } from '@angular/material/dialog';
+import { EntryFormDialogComponent } from '../entry-form-dialog/entry-form-dialog';
 export interface DayData {
   day: string;
   hours: number;
@@ -35,6 +36,8 @@ export interface WeeklyStats {
 export class DashboardComponent {
   private static instanceCount = 0;
   private instanceId: number;
+  private isDialogOpen = false;
+
 
   allEntries: EntryTableComponent[] = [];
 
@@ -174,9 +177,17 @@ export class DashboardComponent {
     { category: 'Learning', hours: 1.0, percentage: 2 }
   ];
 
-  constructor() {
+  constructor(
+    private dialog: MatDialog,
+  ) {
     this.instanceId = ++DashboardComponent.instanceCount;
     console.log(`DashboardComponent constructed [instance ${this.instanceId}]`);
+  }
+
+  
+
+  hasEntries(): boolean {
+    return this.allEntries.length > 0;
   }
 
   getHoursIncrease(): number {
@@ -220,4 +231,24 @@ export class DashboardComponent {
     if (progress >= 25) return 'bg-yellow-500';
     return 'bg-red-500';
   }
+
+   addEntry() {
+      if (this.isDialogOpen) {
+        return;
+      }
+  
+      this.isDialogOpen = true;
+  
+      const dialogRef = this.dialog.open(EntryFormDialogComponent, {
+        width: '500px',
+        disableClose: true,
+        data: null
+      });
+  
+      dialogRef.afterClosed().subscribe(result => {
+        this.isDialogOpen = false;
+  
+        
+      });
+    }
 }
