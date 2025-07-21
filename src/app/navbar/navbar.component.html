@@ -8,21 +8,43 @@
         <span class="text-xl font-bold text-gray-900 cursor-pointer" (click)="navigateToHome()">TimeTracker Pro</span>
       </div>
 
-      <!-- Show login button if NOT logged in -->
-      <button 
-        *ngIf="!isLoggedIn"
-        (click)="navigateToLogin()"
-        class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-all duration-200 hover:shadow-lg transform hover:-translate-y-0.5">
-        Employee Login
-      </button>
+      <div class="flex space-x-4 items-center">
+       
+       <ng-container *ngIf="isLoggedIn; else loginButton">
+ 
+  <button
+    *ngIf="!isDashboardPage()"
+    (click)="navigateToDashboard()"
+    title="Dashboard"
+    class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded-lg transition-all duration-200 hover:shadow-lg transform hover:-translate-y-0.5 flex items-center space-x-2"
+  >
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M3 12l2-2m0 0l7-7 7 7M13 5v6h6m-6 0H5a2 2 0 00-2 2v7h18v-7a2 2 0 00-2-2h-6z"/>
+    </svg>
+  </button>
 
-      <!-- Show logout button ONLY if logged in AND on dashboard page -->
-      <button
-        *ngIf="isLoggedIn && isDashboardPage()"
-        (click)="logout()"
-        class="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg font-medium transition-all duration-200 hover:shadow-lg transform hover:-translate-y-0.5">
-        Logout
-      </button>
+  <button
+    (click)="logout()"
+    title="Logout"
+    class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg transition-all duration-200 hover:shadow-lg transform hover:-translate-y-0.5 flex items-center space-x-2"
+  >
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H6a2 2 0 01-2-2V7a2 2 0 012-2h5a2 2 0 012 2v1"/>
+    </svg>
+  </button>
+</ng-container>
+
+
+        <ng-template #loginButton>
+          <button
+            (click)="navigateToLogin()"
+            class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-all duration-200 hover:shadow-lg transform hover:-translate-y-0.5">
+            Employee Login
+          </button>
+        </ng-template>
+      </div>
     </div>
   </div>
 </nav>

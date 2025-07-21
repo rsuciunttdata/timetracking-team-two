@@ -35,28 +35,32 @@ export class LoginComponent {
   }
 
   onSubmit(): void {
-    if (this.loginForm.valid && !this.isLoading) {
-      this.isLoading = true;
-      this.loginError = '';
+  if (this.loginForm.valid && !this.isLoading) {
+    this.isLoading = true;
+    this.loginError = '';
 
-      setTimeout(() => {
-        const { employeeId, password } = this.loginForm.value;
-        
-        if (employeeId === 'demo' && password === 'password') {
-          this.router.navigate(['/dashboard']);
-        } else {
-          this.loginError = 'Invalid employee ID or password. Please try again.';
-        }
-        
-        this.isLoading = false;
-      }, 1500);
-    } else {
+    setTimeout(() => {
+      const { employeeId, password } = this.loginForm.value;
 
-      Object.keys(this.loginForm.controls).forEach(key => {
-        this.loginForm.get(key)?.markAsTouched();
-      });
-    }
+      if (employeeId === 'demo' && password === 'password') {
+        // ✅ Mark user as logged in
+        localStorage.setItem('isLoggedIn', 'true');
+
+        // Redirect to dashboard
+        this.router.navigate(['/dashboard']);
+      } else {
+        this.loginError = 'Invalid employee ID or password. Please try again.';
+      }
+
+      this.isLoading = false;
+    }, 1500);
+  } else {
+    Object.keys(this.loginForm.controls).forEach(key => {
+      this.loginForm.get(key)?.markAsTouched();
+    });
   }
+}
+
 
   navigateToHome(): void {
     this.router.navigate(['/']);

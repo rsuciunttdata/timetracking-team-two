@@ -48,31 +48,58 @@
         />
       </div>
 
-      <!-- Status filter -->
-      <div class="h-10 flex items-center gap-2 px-4 bg-white/60 rounded-lg border border-gray-200/50 shadow-sm backdrop-blur-sm">
-        <mat-icon class="text-slate-500 text-sm">tune</mat-icon>
-        <label class="text-xs font-medium text-slate-600 uppercase tracking-wider">Status:</label>
-        <div class="relative">
-          <mat-form-field appearance="outline" class="filter-select scale-35 -my-2">
-            <mat-select
-              multiple
-              [(ngModel)]="filters.statuses"
-              (ngModelChange)="onFilterChange()"
-              placeholder="All statuses"
-              class="text-sm"
-            >
-              <mat-option *ngFor="let status of statusOptions" [value]="status.value">
-                <div class="flex items-center space-x-2">
-                  <mat-icon class="text-sm" [ngClass]="getStatusIconColor(status.value)">
-                    {{ getStatusIcon(status.value) }}
-                  </mat-icon>
-                  <span>{{ status.label }}</span>
-                </div>
-              </mat-option>
-            </mat-select>
-          </mat-form-field>
-        </div>
+     <!-- Status Filter -->
+<div class="relative h-10 flex items-center gap-2 px-4 bg-white/60 rounded-lg border border-gray-200/50 shadow-sm backdrop-blur-sm">
+  <svg class="text-slate-500 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2H3V4zm0 4h18v2H3V8zm0 4h12v2H3v-2zm0 4h6v2H3v-2z"/>
+  </svg>
+  <label class="text-xs font-medium text-slate-600 uppercase tracking-wider">Status:</label>
+
+  <!-- Dropdown Trigger -->
+  <div class="relative">
+    <button
+      (click)="showStatusDropdown = !showStatusDropdown"
+      class="px-3 py-1 bg-white border border-gray-300 rounded-md text-sm text-gray-700 flex items-center gap-2 hover:border-blue-400 transition-all"
+    >
+      <span *ngIf="filters.statuses.length > 0">
+        {{ filters.statuses.length }} selected
+      </span>
+      <span *ngIf="filters.statuses.length === 0">All statuses</span>
+      <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M19 9l-7 7-7-7"/>
+      </svg>
+    </button>
+
+    <!-- Dropdown Panel -->
+    <div
+      *ngIf="showStatusDropdown"
+      class="absolute z-100 mt-2 w-64 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto"
+    >
+      <div
+        *ngFor="let status of statusOptions"
+        class="flex items-center px-4 py-2 hover:bg-gray-50 cursor-pointer"
+        (click)="toggleStatus(status.value)"
+      >
+        <input
+          type="checkbox"
+          class="mr-2"
+          [checked]="filters.statuses.includes(status.value)"
+          (click)="$event.stopPropagation()"
+          (change)="toggleStatus(status.value)"
+        />
+        <svg class="w-4 h-4 mr-2" [ngClass]="getStatusIconColor(status.value)" fill="none" stroke="currentColor"
+             viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M5 13l4 4L19 7"/>
+        </svg>
+        <span class="text-sm text-gray-700">{{ status.label }}</span>
       </div>
+    </div>
+  </div>
+</div>
+
 
       <!-- Clear button -->
       <button
