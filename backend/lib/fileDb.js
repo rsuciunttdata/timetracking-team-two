@@ -3,7 +3,6 @@ import path from 'path';
 
 const DATA_FILE = path.join(process.cwd(), 'data', 'time-entries.json');
 
-// Ensure data directory exists
 async function ensureDataDir() {
   const dataDir = path.dirname(DATA_FILE);
   try {

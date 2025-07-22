@@ -1,5 +1,5 @@
-import { Component, ViewChild, OnInit, AfterViewInit, inject, effect } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, ViewChild, OnInit, AfterViewInit, inject, effect, PLATFORM_ID, Inject } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 import { MatSortModule, MatSort } from '@angular/material/sort';
@@ -69,7 +69,10 @@ export class EntryTableComponent implements OnInit, AfterViewInit {
 
   private refreshService = inject(EntryRefreshService);
 
+  private userUuid = '001';
+
   constructor(
+    @Inject(PLATFORM_ID) private platformId: Object,
     private dialog: MatDialog,
     private timeEntryService: TimeEntryService,
     private snackBar: MatSnackBar
@@ -77,16 +80,24 @@ export class EntryTableComponent implements OnInit, AfterViewInit {
     this.instanceId = ++EntryTableComponent.instanceCount;
     console.log(`EntryTableComponent constructed [instance ${this.instanceId}]`);
 
+    if (isPlatformBrowser(this.platformId)) {
+      this.initializeUser();
+    }
+
     effect(() => {
       this.refreshService.refreshSignal();
       console.log(`[instance ${this.instanceId}] refreshSignal triggered`);
-      this.loadTimeEntries();
+      if (isPlatformBrowser(this.platformId)) {
+        this.loadTimeEntries();
+      }
     });
   }
 
   ngOnInit() {
     console.log('EntryTableComponent ngOnInit');
-    this.loadTimeEntries();
+    if (isPlatformBrowser(this.platformId)) {
+      this.loadTimeEntries();
+    }
   }
 
   ngAfterViewInit() {
@@ -94,7 +105,17 @@ export class EntryTableComponent implements OnInit, AfterViewInit {
     this.dataSource.sort = this.sort;
   }
 
+  private initializeUser() {
+    if (isPlatformBrowser(this.platformId) && typeof localStorage !== 'undefined') {
+      localStorage.setItem('userUuid', this.userUuid);
+    }
+  }
+
   loadTimeEntries() {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
     this.loading = true;
 
     this.timeEntryService.getTimeEntries().subscribe({
