@@ -1,290 +1,372 @@
-<div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-      <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+<div class="flex min-h-screen bg-gray-50">
+  <!-- Left Sidebar - Filters -->
+  <div class="w-80 p-6">
+    <div class="bg-white rounded-2xl shadow-xl border border-gray-200 flex flex-col h-full">
+      <!-- Sidebar Header -->
+      <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-t-2xl">
         <div class="flex items-center space-x-3">
-          <mat-icon class="text-blue-600">schedule</mat-icon>
+          <div class="w-8 h-8 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
+            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2H3V4zm0 4h18v2H3V8zm0 4h12v2H3v-2zm0 4h6v2H3v-2z"/>
+            </svg>
+          </div>
           <div>
-            <h3 class="text-lg font-semibold text-gray-900">Time Entries</h3>
+            <h3 class="text-lg font-semibold text-gray-900">Filters</h3>
+            <p class="text-sm text-gray-600">Refine your search</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filter Controls -->
+      <div class="flex-1 px-6 py-6 space-y-6 overflow-y-auto">
+      <!-- Date Range Filter -->
+      <div class="space-y-4">
+        <h4 class="text-sm font-semibold text-gray-700 uppercase tracking-wide flex items-center">
+          <svg class="w-4 h-4 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+          </svg>
+          Date Range
+        </h4>
+        
+        <!-- From Date -->
+        <div class="space-y-2">
+          <label class="block text-xs font-medium text-gray-600 uppercase tracking-wider">From</label>
+          <div class="relative">
+            <input
+              type="date"
+              [(ngModel)]="filters.dateFrom"
+              (ngModelChange)="onFilterChange()"
+              class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-sm"
+            />
+          </div>
+        </div>
+
+        <!-- To Date -->
+        <div class="space-y-2">
+          <label class="block text-xs font-medium text-gray-600 uppercase tracking-wider">To</label>
+          <div class="relative">
+            <input
+              type="date"
+              [(ngModel)]="filters.dateTo"
+              (ngModelChange)="onFilterChange()"
+              class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-sm"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Status Filter -->
+      <div class="space-y-4">
+        <h4 class="text-sm font-semibold text-gray-700 uppercase tracking-wide flex items-center">
+          <svg class="w-4 h-4 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          Status
+        </h4>
+        
+        <div class="space-y-3">
+          <div *ngFor="let status of statusOptions" 
+               class="flex items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+               (click)="toggleStatus(status.value)">
+            <input
+              type="checkbox"
+              [checked]="filters.statuses.includes(status.value)"
+              (click)="$event.stopPropagation()"
+              (change)="toggleStatus(status.value)"
+              class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+            />
+            <div class="ml-3 flex items-center">
+              <div class="w-2 h-2 rounded-full mr-2" [ngClass]="getStatusIconColor(status.value)"></div>
+              <span class="text-sm font-medium text-gray-700">{{ status.label }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+      <!-- Sidebar Footer -->
+      <div class="px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-2xl">
+        <div class="flex items-center justify-between mb-3">
+          <div class="text-sm text-gray-600">
+            <span class="font-semibold text-blue-600">{{ dataSource.data.length }}</span>
+            of
+            <span class="font-semibold text-gray-800">{{ allEntries.length }}</span>
+            entries
+          </div>
+        </div>
+        
+        <button
+          (click)="clearFilters()"
+          class="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 flex items-center justify-center space-x-2"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+          <span>Clear All Filters</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content Area -->
+  <div class="flex-1 flex flex-col">
+    <!-- Header -->
+    <div class="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center">
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+          <div>
+            <h1 class="text-2xl font-bold text-gray-900">Time Entries</h1>
             <p class="text-sm text-gray-600">Recent time tracking entries</p>
           </div>
         </div>
         <button (click)="addEntry()"
-            class="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-4 py-2 rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200 flex items-center space-x-2 shadow-sm">
-            <mat-icon class="text-sm">add</mat-icon>
-            <span class="font-medium">Add Entry</span>
+                class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 flex items-center space-x-2">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+          </svg>
+          <span>Add Entry</span>
         </button>
       </div>
-
-    <div class="px-6 py-5 bg-gradient-to-r from-slate-50 to-gray-50 border-b border-gray-200/60 backdrop-blur-sm">
-  <div class="flex items-center justify-between flex-wrap gap-4">
-    <!-- Left side - Filter controls -->
-    <div class="flex items-center flex-wrap gap-4">
-      <!-- Filter header -->
-      <div class="h-10 flex items-center gap-2 px-4 bg-white/80 rounded-lg border border-gray-200/50 shadow-sm">
-        <mat-icon class="text-slate-600 text-lg">filter_list</mat-icon>
-        <span class="text-sm font-semibold text-slate-700 tracking-wide">Filters</span>
-      </div>
-
-      <!-- Date from filter -->
-      <div class="h-10 flex items-center gap-2 px-4 bg-white/60 rounded-lg border border-gray-200/50 shadow-sm backdrop-blur-sm">
-        <mat-icon class="text-slate-500 text-sm">date_range</mat-icon>
-        <label class="text-xs font-medium text-slate-600 uppercase tracking-wider">From:</label>
-        <input
-          type="date"
-          [(ngModel)]="filters.dateFrom"
-          (ngModelChange)="onFilterChange()"
-          class="px-2 py-1 text-sm bg-white/80 border border-gray-200 rounded focus:border-blue-400 focus:ring-1 focus:ring-blue-100 focus:outline-none transition-all duration-200 hover:border-gray-300"
-        />
-      </div>
-
-      <!-- Date to filter -->
-      <div class="h-10 flex items-center gap-2 px-4 bg-white/60 rounded-lg border border-gray-200/50 shadow-sm backdrop-blur-sm">
-        <mat-icon class="text-slate-500 text-sm">event</mat-icon>
-        <label class="text-xs font-medium text-slate-600 uppercase tracking-wider">To:</label>
-        <input
-          type="date"
-          [(ngModel)]="filters.dateTo"
-          (ngModelChange)="onFilterChange()"
-          class="px-2 py-1 text-sm bg-white/80 border border-gray-200 rounded focus:border-blue-400 focus:ring-1 focus:ring-blue-100 focus:outline-none transition-all duration-200 hover:border-gray-300"
-        />
-      </div>
-
-     <!-- Status Filter -->
-<div class="relative h-10 flex items-center gap-2 px-4 bg-white/60 rounded-lg border border-gray-200/50 shadow-sm backdrop-blur-sm">
-  <svg class="text-slate-500 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-          d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2H3V4zm0 4h18v2H3V8zm0 4h12v2H3v-2zm0 4h6v2H3v-2z"/>
-  </svg>
-  <label class="text-xs font-medium text-slate-600 uppercase tracking-wider">Status:</label>
-
-  <!-- Dropdown Trigger -->
-  <div class="relative">
-    <button
-      (click)="showStatusDropdown = !showStatusDropdown"
-      class="px-3 py-1 bg-white border border-gray-300 rounded-md text-sm text-gray-700 flex items-center gap-2 hover:border-blue-400 transition-all"
-    >
-      <span *ngIf="filters.statuses.length > 0">
-        {{ filters.statuses.length }} selected
-      </span>
-      <span *ngIf="filters.statuses.length === 0">All statuses</span>
-      <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M19 9l-7 7-7-7"/>
-      </svg>
-    </button>
-
-    <!-- Dropdown Panel -->
-    <div
-      *ngIf="showStatusDropdown"
-      class="absolute z-100 mt-2 w-64 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto"
-    >
-      <div
-        *ngFor="let status of statusOptions"
-        class="flex items-center px-4 py-2 hover:bg-gray-50 cursor-pointer"
-        (click)="toggleStatus(status.value)"
-      >
-        <input
-          type="checkbox"
-          class="mr-2"
-          [checked]="filters.statuses.includes(status.value)"
-          (click)="$event.stopPropagation()"
-          (change)="toggleStatus(status.value)"
-        />
-        <svg class="w-4 h-4 mr-2" [ngClass]="getStatusIconColor(status.value)" fill="none" stroke="currentColor"
-             viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M5 13l4 4L19 7"/>
-        </svg>
-        <span class="text-sm text-gray-700">{{ status.label }}</span>
-      </div>
-    </div>
-  </div>
-</div>
-
-
-      <!-- Clear button -->
-      <button
-        (click)="clearFilters()"
-        class="group h-10 px-4 text-sm font-medium text-slate-600 hover:text-slate-800 bg-white/60 hover:bg-white/80 border border-gray-200/50 hover:border-gray-300 rounded-lg transition-all duration-200 flex items-center gap-2 shadow-sm hover:shadow-md backdrop-blur-sm"
-      >
-        <mat-icon class="text-sm group-hover:rotate-90 transition-transform duration-200">clear</mat-icon>
-        <span>Clear All</span>
-      </button>
     </div>
 
-    <!-- Right side - Results counter -->
-    <div class="h-10 flex items-center gap-2 px-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200/50 rounded-lg shadow-sm">
-      <mat-icon class="text-blue-600 text-sm">insights</mat-icon>
-      <div class="text-sm text-slate-700">
-        Showing
-        <span class="font-bold text-blue-600 mx-1">{{ dataSource.data.length }}</span>
-        of
-        <span class="font-bold text-slate-800 mx-1">{{ allEntries.length }}</span>
-        entries
-      </div>
-    </div>
-  </div>
-</div>
-      <div class="overflow-x-auto">
-        <table mat-table [dataSource]="dataSource" matSort class="w-full" *ngIf="dataSource.data.length > 0; else noEntries">
-          <ng-container matColumnDef="date">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header
-              class="bg-gray-50 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-200 w-32 min-w-32">
-            Dată
-          </th>
-            <td mat-cell *matCellDef="let entry" class="px-6 py-4 whitespace-nowrap border-b border-gray-100">
-              <div class="flex items-center space-x-3">
-                <mat-icon class="text-gray-400 text-sm">today</mat-icon>
-                <span class="text-sm font-medium text-gray-900">{{ entry.date }}</span>
-              </div>
-            </td>
-          </ng-container>
+    <!-- Table Container -->
+    <div class="flex-1 p-6">
+      <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+        <div class="overflow-x-auto">
+          <!-- Custom Tailwind Table -->
+          <table class="min-w-full divide-y divide-gray-200" *ngIf="dataSource.data.length > 0; else noEntries">
+            <thead class="bg-gradient-to-r from-gray-50 to-gray-100">
+              <tr>
+                <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gray-200 transition-colors">
+                  <div class="flex items-center space-x-2">
+                    <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                    <span>Dată</span>
+                  </div>
+                </th>
+                <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gray-200 transition-colors">
+                  <div class="flex items-center space-x-2">
+                    <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h8m-5-8V3a1 1 0 011-1h1a1 1 0 011 1v3"/>
+                    </svg>
+                    <span>Ora început</span>
+                  </div>
+                </th>
+                <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gray-200 transition-colors">
+                  <div class="flex items-center space-x-2">
+                    <svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <span>Ora sfârșit</span>
+                  </div>
+                </th>
+                <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gray-200 transition-colors">
+                  <div class="flex items-center space-x-2">
+                    <svg class="w-4 h-4 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <span>Pauză</span>
+                  </div>
+                </th>
+                <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gray-200 transition-colors">
+                  <div class="flex items-center space-x-2">
+                    <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <span>Total</span>
+                  </div>
+                </th>
+                <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gray-200 transition-colors">
+                  <div class="flex items-center space-x-2">
+                    <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <span>Stare</span>
+                  </div>
+                </th>
+                <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
+                  <span>Acțiuni</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <tr *ngFor="let entry of dataSource.data" class="hover:bg-blue-50 transition-colors duration-150">
+                <!-- Date -->
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                      <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                      </svg>
+                    </div>
+                    <span class="text-sm font-semibold text-gray-900">{{ entry.date }}</span>
+                  </div>
+                </td>
 
-          <ng-container matColumnDef="startTime">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header
-                class="bg-gray-50 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-200">
-              Ora început
-            </th>
-            <td mat-cell *matCellDef="let entry" class="px-6 py-4 whitespace-nowrap border-b border-gray-100">
-              <div class="flex items-center space-x-3">
-                <mat-icon class="text-green-500 text-sm">play_arrow</mat-icon>
-                <span class="text-sm text-gray-900">{{ entry.startTime }}</span>
-              </div>
-            </td>
-          </ng-container>
+                <!-- Start Time -->
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                      <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h8m-5-8V3a1 1 0 011-1h1a1 1 0 011 1v3"/>
+                      </svg>
+                    </div>
+                    <span class="text-sm font-medium text-gray-900">{{ entry.startTime }}</span>
+                  </div>
+                </td>
 
-          <ng-container matColumnDef="endTime">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header
-                class="bg-gray-50 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-200">
-              Ora sfârșit
-            </th>
-            <td mat-cell *matCellDef="let entry" class="px-6 py-4 whitespace-nowrap border-b border-gray-100">
-              <div class="flex items-center space-x-3">
-                <mat-icon class="text-red-500 text-sm">stop</mat-icon>
-                <span class="text-sm text-gray-900">{{ entry.endTime }}</span>
-              </div>
-            </td>
-          </ng-container>
+                <!-- End Time -->
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center">
+                      <svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                      </svg>
+                    </div>
+                    <span class="text-sm font-medium text-gray-900">{{ entry.endTime }}</span>
+                  </div>
+                </td>
 
-          <ng-container matColumnDef="break">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header
-                class="bg-gray-50 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-200">
-              Pauză
-            </th>
-            <td mat-cell *matCellDef="let entry" class="px-6 py-4 whitespace-nowrap border-b border-gray-100">
-              <div class="flex items-center space-x-3">
-                <mat-icon class="text-orange-500 text-sm">pause</mat-icon>
-                <span class="text-sm text-gray-900">{{ entry.break }}</span>
-              </div>
-            </td>
-          </ng-container>
+                <!-- Break -->
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
+                      <svg class="w-4 h-4 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                      </svg>
+                    </div>
+                    <span class="text-sm font-medium text-gray-900">{{ entry.break }}</span>
+                  </div>
+                </td>
 
-          <ng-container matColumnDef="total">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header
-                class="bg-gray-50 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-200">
-              Total
-            </th>
-            <td mat-cell *matCellDef="let entry" class="px-6 py-4 whitespace-nowrap border-b border-gray-100">
-              <div class="flex items-center space-x-3">
-                <mat-icon class="text-purple-500 text-sm">timer</mat-icon>
-                <span class="text-sm font-semibold text-gray-900">{{ entry.total }}</span>
-              </div>
-            </td>
-          </ng-container>
+                <!-- Total -->
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                      <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                      </svg>
+                    </div>
+                    <span class="text-sm font-bold text-gray-900 bg-gray-100 px-2 py-1 rounded-lg">{{ entry.total }}</span>
+                  </div>
+                </td>
 
-          <ng-container matColumnDef="status">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header
-                class="bg-gray-50 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-200">
-              Stare
-            </th>
-            <td mat-cell *matCellDef="let entry" class="px-6 py-4 whitespace-nowrap border-b border-gray-100">
-              <span [ngClass]="getStatusClasses(entry.status)"
-                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">
-                <mat-icon class="text-xs mr-1">{{ getStatusIcon(entry.status) }}</mat-icon>
-                {{ getStatusText(entry.status) }}
+                <!-- Status -->
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span [ngClass]="getStatusClasses(entry.status)"
+                        class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold shadow-sm">
+                    <div class="w-2 h-2 rounded-full mr-2" [ngClass]="getStatusIconColor(entry.status)"></div>
+                    {{ getStatusText(entry.status) }}
+                  </span>
+                </td>
+
+                <!-- Actions -->
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center space-x-2">
+                    <button *ngIf="canEditEntry(entry)"
+                            (click)="editEntry(entry)"
+                            class="p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-100 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
+                            title="Editare">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                      </svg>
+                    </button>
+
+                    <button *ngIf="!canEditEntry(entry)"
+                            disabled
+                            class="p-2 text-gray-400 cursor-not-allowed rounded-lg"
+                            title="Nu se poate edita">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636m12.728 12.728L18.364 5.636M5.636 18.364l12.728-12.728"/>
+                      </svg>
+                    </button>
+
+                    <button *ngIf="canEditEntry(entry)"
+                            (click)="deleteEntry(entry)"
+                            class="p-2 text-red-600 hover:text-red-800 hover:bg-red-100 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
+                            title="Ștergere">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                      </svg>
+                    </button>
+
+                    <button *ngIf="!canEditEntry(entry)"
+                            disabled
+                            class="p-2 text-gray-400 cursor-not-allowed rounded-lg"
+                            title="Nu se poate șterge">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636"/>
+                      </svg>
+                    </button>
+
+                    <button *ngIf="canSendForApproval(entry)"
+                            (click)="sendForApproval(entry)"
+                            class="p-2 text-indigo-600 hover:text-indigo-800 hover:bg-indigo-100 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
+                            title="Trimite pentru aprobare">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+                      </svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- No Entries Template -->
+          <ng-template #noEntries>
+            <div class="flex flex-col items-center justify-center p-16 text-center">
+              <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+              </div>
+              <h3 class="text-lg font-semibold text-gray-900 mb-2">No entries found</h3>
+              <p class="text-gray-500 mb-4">Try adjusting your filters or add a new entry to get started.</p>
+              <button (click)="addEntry()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+                Add New Entry
+              </button>
+            </div>
+          </ng-template>
+        </div>
+
+        <!-- Table Footer -->
+        <div class="bg-gray-50 px-6 py-4 border-t border-gray-200">
+          <div class="flex items-center justify-between">
+            <div class="text-sm text-gray-700">
+              Showing <span class="font-semibold text-gray-900">{{ dataSource.data.length }}</span> entries
+              <span *ngIf="dataSource.data.length !== allEntries.length" class="text-gray-500">
+                (filtered from {{ allEntries.length }} total)
               </span>
-            </td>
-          </ng-container>
-
-          <ng-container matColumnDef="actions">
-            <th mat-header-cell *matHeaderCellDef
-                class="bg-gray-50 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-200">
-              Acțiuni
-            </th>
-            <td mat-cell *matCellDef="let entry" class="px-6 py-4 whitespace-nowrap border-b border-gray-100">
-              <div class="flex items-center space-x-2">
-
-                <button *ngIf="canEditEntry(entry)"
-                        (click)="editEntry(entry)"
-                        class="text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg p-2 transition-colors"
-                        title="Editare">
-                  <mat-icon class="text-sm">edit</mat-icon>
-                </button>
-
-                <button *ngIf="!canEditEntry(entry)"
-                        disabled
-                        class="text-gray-400 cursor-not-allowed rounded-lg p-2"
-                        title="Nu se poate edita - intrarea este în curs de aprobare sau aprobată">
-                  <mat-icon class="text-sm">edit_off</mat-icon>
-                </button>
-
-                <button *ngIf="canEditEntry(entry)"
-                        (click)="deleteEntry(entry)"
-                        class="text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg p-2 transition-colors"
-                        title="Ștergere">
-                  <mat-icon class="text-sm">delete</mat-icon>
-                </button>
-
-                <button *ngIf="!canEditEntry(entry)"
-                        disabled
-                        class="text-gray-400 cursor-not-allowed rounded-lg p-2"
-                        title="Nu se poate șterge - intrarea este în curs de aprobare sau aprobată">
-                  <mat-icon class="text-sm">delete_off</mat-icon>
-                </button>
-
-                <button *ngIf="canSendForApproval(entry)"
-                        (click)="sendForApproval(entry)"
-                        class="text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 rounded-lg p-2 transition-colors"
-                        title="Trimite pentru aprobare">
-                  <mat-icon class="text-sm">send</mat-icon>
-                </button>
-              </div>
-            </td>
-          </ng-container>
-
-          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-          <tr mat-row *matRowDef="let row; columns: displayedColumns;"
-              class="hover:bg-gray-50 transition-colors cursor-pointer"></tr>
-        </table>
-
-      <ng-template #noEntries>
-        <div class="flex flex-col items-center justify-center p-16 text-center text-gray-400 space-y-2">
-          <mat-icon class="text-1xl">info</mat-icon>
-          <p class="text-lg font-medium">No entries currently available.</p>
-          <p class="text-sm">Try adjusting your filters or add a new entry.</p>
-        </div>
-      </ng-template>
-      </div>
-
-      <div class="px-6 py-3 bg-gray-50 border-t border-gray-200">
-        <div class="flex items-center justify-between">
-          <div class="text-sm text-gray-700">
-            Showing <span class="font-medium">{{ dataSource.data.length }}</span> entries
-            <span *ngIf="dataSource.data.length !== allEntries.length" class="text-gray-500">
-              (filtered from {{ allEntries.length }} total)
-            </span>
+            </div>
+            
+            <!-- Pagination -->
+            <div class="flex items-center space-x-4">
+              <button 
+                (click)="previousPage()" 
+                [disabled]="currentPage === 0"
+                class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                Previous
+              </button>
+              <span class="text-sm text-gray-700 bg-white px-3 py-2 border border-gray-300 rounded-lg">
+                Page {{ currentPage + 1 }}
+              </span>
+              <button 
+                (click)="nextPage()"
+                [disabled]="(currentPage + 1) * pageSize >= getFilteredEntries().length"
+                class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                Next
+              </button>
+            </div>
           </div>
-        <div class="pagination-controls">
-          <button mat-button (click)="previousPage()" [disabled]="currentPage === 0">
-            Previous
-          </button>
-          <span>Page {{ currentPage + 1 }}</span>
-          <button mat-button (click)="nextPage()"
-                  [disabled]="(currentPage + 1) * pageSize >= getFilteredEntries().length">
-            Next
-          </button>
-        </div>
-
-
         </div>
       </div>
     </div>
+  </div>
+</div>
