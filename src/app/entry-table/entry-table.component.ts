@@ -42,6 +42,11 @@ export class EntryTableComponent implements OnInit, AfterViewInit {
   dataSource = new MatTableDataSource<TimeEntry>();
   allEntries: TimeEntry[] = [];
   loading = false;
+  isStatusDropdownOpen = false;
+  currentPage = 0;
+  pageSize = 10;
+  pagedEntries: TimeEntry[] = [];
+
 
   filters = {
     dateFrom: '',
@@ -100,28 +105,76 @@ export class EntryTableComponent implements OnInit, AfterViewInit {
   }
 
   applyFilters() {
-    let filteredEntries = [...this.allEntries];
+  let filteredEntries = [...this.allEntries];
 
-    if (this.filters.dateFrom) {
-      filteredEntries = filteredEntries.filter(entry =>
-        entry.date >= this.filters.dateFrom
-      );
-    }
-
-    if (this.filters.dateTo) {
-      filteredEntries = filteredEntries.filter(entry =>
-        entry.date <= this.filters.dateTo
-      );
-    }
-
-    if (this.filters.statuses.length > 0) {
-      filteredEntries = filteredEntries.filter(entry =>
-        this.filters.statuses.includes(entry.status)
-      );
-    }
-
-    this.dataSource.data = filteredEntries;
+  if (this.filters.dateFrom) {
+    const dateFrom = new Date(this.filters.dateFrom);
+    filteredEntries = filteredEntries.filter(entry =>
+      new Date(entry.date) >= dateFrom
+    );
   }
+
+  if (this.filters.dateTo) {
+    const dateTo = new Date(this.filters.dateTo);
+    filteredEntries = filteredEntries.filter(entry =>
+      new Date(entry.date) <= dateTo
+    );
+  }
+
+  if (this.filters.statuses.length > 0) {
+    filteredEntries = filteredEntries.filter(entry =>
+      this.filters.statuses.includes(entry.status)
+    );
+  }
+
+  this.currentPage = 0; // Reset to first page
+  this.setPagedEntries(filteredEntries);
+}
+
+setPagedEntries(entries: TimeEntry[]) {
+  const startIndex = this.currentPage * this.pageSize;
+  const endIndex = startIndex + this.pageSize;
+  this.pagedEntries = entries.slice(startIndex, endIndex);
+  this.dataSource.data = this.pagedEntries;
+}
+
+nextPage() {
+  const totalPages = Math.ceil(this.allEntries.length / this.pageSize);
+  if (this.currentPage < totalPages - 1) {
+    this.currentPage++;
+    this.setPagedEntries(this.getFilteredEntries());
+  }
+}
+
+previousPage() {
+  if (this.currentPage > 0) {
+    this.currentPage--;
+    this.setPagedEntries(this.getFilteredEntries());
+  }
+}
+
+
+
+getFilteredEntries(): TimeEntry[] {
+  let filtered = [...this.allEntries];
+
+  if (this.filters.dateFrom) {
+    const dateFrom = new Date(this.filters.dateFrom);
+    filtered = filtered.filter(entry => new Date(entry.date) >= dateFrom);
+  }
+
+  if (this.filters.dateTo) {
+    const dateTo = new Date(this.filters.dateTo);
+    filtered = filtered.filter(entry => new Date(entry.date) <= dateTo);
+  }
+
+  if (this.filters.statuses.length > 0) {
+    filtered = filtered.filter(entry => this.filters.statuses.includes(entry.status));
+  }
+
+  return filtered;
+}
+
 
   clearFilters() {
     this.filters = {
