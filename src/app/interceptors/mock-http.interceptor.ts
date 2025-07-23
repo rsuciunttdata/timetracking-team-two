@@ -6,8 +6,7 @@ export const mockHttpInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>
     return next(req);
   }
 
-  // ✅ CORRECTED: Use the actual backend URL
-  const backendUrl = 'https://timetracking-ntt-backend.vercel.app';
+  const backendUrl = 'http://localhost:3001';
 
   let modifiedUrl = req.url;
   if (req.url.includes('/api/time-entries/') && req.url.includes('/send-for-approval')) {

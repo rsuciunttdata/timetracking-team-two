@@ -406,4 +406,17 @@ export class EntryTableComponent implements OnInit, AfterViewInit {
       panelClass: [`snackbar-${type}`]
     });
   }
+
+  showStatusDropdown = false;
+
+toggleStatus(value: string): void {
+  const index = this.filters.statuses.indexOf(value);
+  if (index === -1) {
+    this.filters.statuses.push(value);
+  } else {
+    this.filters.statuses.splice(index, 1);
+  }
+  this.onFilterChange();
+}
+
 }
