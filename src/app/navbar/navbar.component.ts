@@ -10,26 +10,25 @@ import { Router } from '@angular/router';
   imports: [CommonModule]
 })
 export class NavbarComponent {
-  constructor(public router: Router) {}
+  isLoggedIn = false;
 
-   isLoggedIn = false;
+  constructor(public router: Router) {}
 
   navigateToLogin() {
     this.router.navigate(['/login']);
   }
 
-  isLoginPage(): boolean {
-    return this.router.url === '/login';
-  }
-
   navigateToHome() {
-  this.router.navigate(['/']);
+    this.router.navigate(['/']);
   }
 
- logout() {
-    // your logout logic, e.g., clear tokens/session
+  logout() {
     this.isLoggedIn = false;
-    // redirect or update UI as needed
+    this.router.navigate(['/login']);
   }
 
+  isDashboardPage(): boolean {
+    this.isLoggedIn = true
+    return this.router.url === '/dashboard';
+  }
 }
