@@ -12,6 +12,8 @@ import { Router } from '@angular/router';
 export class NavbarComponent {
   constructor(public router: Router) {}
 
+   isLoggedIn = false;
+
   navigateToLogin() {
     this.router.navigate(['/login']);
   }
@@ -22,6 +24,12 @@ export class NavbarComponent {
 
   navigateToHome() {
   this.router.navigate(['/']);
-}
+  }
+
+ logout() {
+    // your logout logic, e.g., clear tokens/session
+    this.isLoggedIn = false;
+    // redirect or update UI as needed
+  }
 
 }
