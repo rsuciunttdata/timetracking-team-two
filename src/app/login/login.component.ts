@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { NavbarComponent } from '../navbar/navbar.component';
 
 @Component({
   selector: 'app-login',
@@ -38,13 +39,10 @@ export class LoginComponent {
       this.isLoading = true;
       this.loginError = '';
 
-      // Simulate API call
       setTimeout(() => {
         const { employeeId, password } = this.loginForm.value;
         
-        // Mock authentication logic - replace with actual API call
         if (employeeId === 'demo' && password === 'password') {
-          // Successful login - navigate to dashboard
           this.router.navigate(['/dashboard']);
         } else {
           this.loginError = 'Invalid employee ID or password. Please try again.';
@@ -53,7 +51,7 @@ export class LoginComponent {
         this.isLoading = false;
       }, 1500);
     } else {
-      // Mark all fields as touched to show validation errors
+
       Object.keys(this.loginForm.controls).forEach(key => {
         this.loginForm.get(key)?.markAsTouched();
       });
@@ -65,7 +63,6 @@ export class LoginComponent {
   }
 
   contactAdmin(): void {
-    // You can implement actual contact functionality here
     alert('Please contact your system administrator for account assistance.');
   }
 
