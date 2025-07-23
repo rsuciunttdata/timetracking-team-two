@@ -1,0 +1,107 @@
+<div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+  <!-- Background Decorations -->
+  <div class="absolute inset-0 overflow-hidden">
+    <div class="absolute top-1/4 left-1/4 w-64 h-64 bg-gradient-to-br from-blue-400/10 to-indigo-400/10 rounded-full blur-3xl"></div>
+    <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-gradient-to-tr from-purple-400/5 to-pink-400/5 rounded-full blur-3xl"></div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="flex items-center justify-center px-4 sm:px-6 lg:px-8" style="height: calc(100vh - 4rem);">
+    <div class="max-w-md w-full space-y-8 relative z-10">
+      <!-- Header -->
+      <div class="text-center">
+        <h2 class="text-3xl font-bold text-gray-900 mb-2">Welcome Back</h2>
+        <p class="text-gray-600">Sign in to your TimeTracker account</p>
+      </div>
+
+      <!-- Login Form -->
+      <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-8 animate-slideInUp">
+
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+          <!-- Employee ID -->
+          <div>
+            <label for="employeeId" class="block text-sm font-medium text-gray-700 mb-2">Employee ID</label>
+            <input id="employeeId" formControlName="employeeId" type="text" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500" placeholder="Enter your employee ID" />
+          </div>
+
+                    <!-- Password -->
+            <div class="mt-4 relative">
+            <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
+                Password
+            </label>
+            <div class="relative">
+                <input
+                id="password"
+                [type]="showPassword ? 'text' : 'password'"
+                formControlName="password"
+                class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 pr-12"
+                placeholder="Enter your password"
+                />
+                <button
+                type="button"
+                (click)="togglePasswordVisibility()"
+                class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+                >
+                <svg
+                    *ngIf="!showPassword"
+                    class="h-5 w-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                >
+                    <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0zM2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                    ></path>
+                </svg>
+                <svg
+                    *ngIf="showPassword"
+                    class="h-5 w-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                >
+                    <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878L3 3m6.878 6.878L21 21"
+                    ></path>
+                </svg>
+                </button>
+            </div>
+            </div>
+
+
+          <!-- Error -->
+          <div *ngIf="loginError" class="bg-red-50 border border-red-200 rounded-xl p-4 flex items-center space-x-3 mt-4">
+            <svg class="h-5 w-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <span class="text-red-700 text-sm">{{ loginError }}</span>
+          </div>
+
+          <!-- Submit -->
+          <button type="submit" class="mt-6 w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold py-3 rounded-xl hover:shadow-lg transition-all">
+            Sign In
+          </button>
+        </form>
+      </div>
+
+      <!-- Demo Credentials Info -->
+      <div class="bg-amber-50 border border-amber-200 rounded-xl p-4">
+        <div class="flex items-start space-x-3">
+          <svg class="w-5 h-5 text-amber-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <div>
+            <p class="text-sm font-medium text-amber-800 mb-1">Demo Credentials</p>
+            <p class="text-xs text-amber-700">Employee ID: <strong>demo</strong> | Password: <strong>password</strong></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

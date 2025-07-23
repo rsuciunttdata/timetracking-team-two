@@ -1,0 +1,100 @@
+<div class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+  <!-- Navigation -->
+
+  <!-- Hero Section -->
+  <section class="relative overflow-hidden">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-24">
+      <div class="text-center">
+        <h1 class="text-5xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
+          Professional Time Tracking
+          <span class="block text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
+            Made Simple
+          </span>
+        </h1>
+        <p class="text-xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
+          Streamline your workforce management with our enterprise-grade time tracking solution. 
+          Secure, intuitive, and designed for modern teams.
+        </p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+          <button 
+            (click)="navigateToLogin()"
+            class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 hover:shadow-xl transform hover:-translate-y-1">
+            Access Your Account
+          </button>
+          <button 
+            (click)="scrollToFeatures()"
+            class="border-2 border-gray-300 hover:border-blue-600 text-gray-700 hover:text-blue-600 px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 hover:shadow-lg">
+            Learn More
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Decorative Elements -->
+    <div class="absolute top-0 right-0 -mt-4 -mr-16 w-64 h-64 bg-gradient-to-br from-blue-400/20 to-indigo-400/20 rounded-full blur-3xl"></div>
+    <div class="absolute bottom-0 left-0 -mb-4 -ml-16 w-96 h-96 bg-gradient-to-tr from-purple-400/10 to-pink-400/10 rounded-full blur-3xl"></div>
+  </section>
+
+  <!-- Features Section -->
+  <section id="features" class="py-24 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-16">
+        <h2 class="text-4xl font-bold text-gray-900 mb-4">
+          Everything You Need for Time Management
+        </h2>
+        <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+          Our comprehensive platform provides all the tools your organization needs to track, analyze, and optimize time management.
+        </p>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div *ngFor="let feature of features" 
+             class="bg-gradient-to-br from-white to-gray-50 p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 group hover:-translate-y-2">
+          <div class="text-4xl mb-4 group-hover:scale-110 transition-transform duration-300">
+            {{ feature.icon }}
+          </div>
+          <h3 class="text-xl font-semibold text-gray-900 mb-3">
+            {{ feature.title }}
+          </h3>
+          <p class="text-gray-600 leading-relaxed">
+            {{ feature.description }}
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="py-24 bg-gradient-to-r from-blue-600 to-indigo-600">
+    <div class="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
+      <h2 class="text-4xl font-bold text-white mb-6">
+        Ready to Get Started?
+      </h2>
+      <p class="text-xl text-blue-100 mb-8 leading-relaxed">
+        Your administrator has set up your account. Simply log in to begin tracking your time and boost your productivity.
+      </p>
+      <button 
+        (click)="navigateToLogin()"
+        class="bg-white hover:bg-gray-50 text-blue-600 px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 hover:shadow-xl transform hover:-translate-y-1">
+        Log In Now
+      </button>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-gray-900 text-white py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col md:flex-row justify-between items-center">
+        <div class="flex items-center space-x-2 mb-4 md:mb-0">
+          <div class="w-8 h-8 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
+            <span class="text-white font-bold text-sm">T</span>
+          </div>
+          <span class="text-xl font-bold">TimeTracker Pro</span>
+        </div>
+        <div class="text-gray-400 text-sm">
+          Need help? Contact your system administrator.
+        </div>
+      </div>
+    </div>
+  </footer>
+</div>
