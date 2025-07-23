@@ -1,4 +1,4 @@
-import { Component, ViewChild, OnInit, AfterViewInit } from '@angular/core';
+import { Component, ViewChild, OnInit, AfterViewInit, inject, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
@@ -14,6 +14,7 @@ import { MatInputModule } from '@angular/material/input';
 import { EntryFormDialogComponent } from '../entry-form-dialog/entry-form-dialog';
 import { ConfirmationDialogComponent, ConfirmationDialogData } from '../confirmation-dialog/confirmation-dialog';
 import { TimeEntryService } from '../services/time-entry.service';
+import { EntryRefreshService } from '../services/entry-refresh.service';
 import { TimeEntry } from '../models/time-entry.model';
 
 @Component({
@@ -47,7 +48,6 @@ export class EntryTableComponent implements OnInit, AfterViewInit {
   pageSize = 10;
   pagedEntries: TimeEntry[] = [];
 
-
   filters = {
     dateFrom: '',
     dateTo: '',
@@ -67,6 +67,8 @@ export class EntryTableComponent implements OnInit, AfterViewInit {
   private instanceId: number;
   private isDialogOpen = false;
 
+  private refreshService = inject(EntryRefreshService);
+
   constructor(
     private dialog: MatDialog,
     private timeEntryService: TimeEntryService,
@@ -74,6 +76,12 @@ export class EntryTableComponent implements OnInit, AfterViewInit {
   ) {
     this.instanceId = ++EntryTableComponent.instanceCount;
     console.log(`EntryTableComponent constructed [instance ${this.instanceId}]`);
+
+    effect(() => {
+      this.refreshService.refreshSignal();
+      console.log(`[instance ${this.instanceId}] refreshSignal triggered`);
+      this.loadTimeEntries();
+    });
   }
 
   ngOnInit() {
@@ -105,76 +113,73 @@ export class EntryTableComponent implements OnInit, AfterViewInit {
   }
 
   applyFilters() {
-  let filteredEntries = [...this.allEntries];
+    let filteredEntries = [...this.allEntries];
 
-  if (this.filters.dateFrom) {
-    const dateFrom = new Date(this.filters.dateFrom);
-    filteredEntries = filteredEntries.filter(entry =>
-      new Date(entry.date) >= dateFrom
-    );
+    if (this.filters.dateFrom) {
+      const dateFrom = new Date(this.filters.dateFrom);
+      filteredEntries = filteredEntries.filter(entry =>
+        new Date(entry.date) >= dateFrom
+      );
+    }
+
+    if (this.filters.dateTo) {
+      const dateTo = new Date(this.filters.dateTo);
+      filteredEntries = filteredEntries.filter(entry =>
+        new Date(entry.date) <= dateTo
+      );
+    }
+
+    if (this.filters.statuses.length > 0) {
+      filteredEntries = filteredEntries.filter(entry =>
+        this.filters.statuses.includes(entry.status)
+      );
+    }
+
+    this.currentPage = 0;
+    this.setPagedEntries(filteredEntries);
   }
 
-  if (this.filters.dateTo) {
-    const dateTo = new Date(this.filters.dateTo);
-    filteredEntries = filteredEntries.filter(entry =>
-      new Date(entry.date) <= dateTo
-    );
+  setPagedEntries(entries: TimeEntry[]) {
+    const startIndex = this.currentPage * this.pageSize;
+    const endIndex = startIndex + this.pageSize;
+    this.pagedEntries = entries.slice(startIndex, endIndex);
+    this.dataSource.data = this.pagedEntries;
   }
 
-  if (this.filters.statuses.length > 0) {
-    filteredEntries = filteredEntries.filter(entry =>
-      this.filters.statuses.includes(entry.status)
-    );
+  nextPage() {
+    const totalPages = Math.ceil(this.allEntries.length / this.pageSize);
+    if (this.currentPage < totalPages - 1) {
+      this.currentPage++;
+      this.setPagedEntries(this.getFilteredEntries());
+    }
   }
 
-  this.currentPage = 0; // Reset to first page
-  this.setPagedEntries(filteredEntries);
-}
-
-setPagedEntries(entries: TimeEntry[]) {
-  const startIndex = this.currentPage * this.pageSize;
-  const endIndex = startIndex + this.pageSize;
-  this.pagedEntries = entries.slice(startIndex, endIndex);
-  this.dataSource.data = this.pagedEntries;
-}
-
-nextPage() {
-  const totalPages = Math.ceil(this.allEntries.length / this.pageSize);
-  if (this.currentPage < totalPages - 1) {
-    this.currentPage++;
-    this.setPagedEntries(this.getFilteredEntries());
-  }
-}
-
-previousPage() {
-  if (this.currentPage > 0) {
-    this.currentPage--;
-    this.setPagedEntries(this.getFilteredEntries());
-  }
-}
-
-
-
-getFilteredEntries(): TimeEntry[] {
-  let filtered = [...this.allEntries];
-
-  if (this.filters.dateFrom) {
-    const dateFrom = new Date(this.filters.dateFrom);
-    filtered = filtered.filter(entry => new Date(entry.date) >= dateFrom);
+  previousPage() {
+    if (this.currentPage > 0) {
+      this.currentPage--;
+      this.setPagedEntries(this.getFilteredEntries());
+    }
   }
 
-  if (this.filters.dateTo) {
-    const dateTo = new Date(this.filters.dateTo);
-    filtered = filtered.filter(entry => new Date(entry.date) <= dateTo);
+  getFilteredEntries(): TimeEntry[] {
+    let filtered = [...this.allEntries];
+
+    if (this.filters.dateFrom) {
+      const dateFrom = new Date(this.filters.dateFrom);
+      filtered = filtered.filter(entry => new Date(entry.date) >= dateFrom);
+    }
+
+    if (this.filters.dateTo) {
+      const dateTo = new Date(this.filters.dateTo);
+      filtered = filtered.filter(entry => new Date(entry.date) <= dateTo);
+    }
+
+    if (this.filters.statuses.length > 0) {
+      filtered = filtered.filter(entry => this.filters.statuses.includes(entry.status));
+    }
+
+    return filtered;
   }
-
-  if (this.filters.statuses.length > 0) {
-    filtered = filtered.filter(entry => this.filters.statuses.includes(entry.status));
-  }
-
-  return filtered;
-}
-
 
   clearFilters() {
     this.filters = {
@@ -248,15 +253,11 @@ getFilteredEntries(): TimeEntry[] {
     const dialogRef = this.dialog.open(EntryFormDialogComponent, {
       width: '500px',
       disableClose: true,
-      data: null
+      data: {}
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe(() => {
       this.isDialogOpen = false;
-
-      if (result) {
-        this.loadTimeEntries();
-      }
     });
   }
 
@@ -276,22 +277,18 @@ getFilteredEntries(): TimeEntry[] {
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        if (entry.status === 'rejected') {
-          const updatedEntry = { ...result, status: 'draft' };
-          this.timeEntryService.updateTimeEntry(entry.id, updatedEntry).subscribe({
-            next: () => {
-              this.loadTimeEntries();
-              this.showSnackBar('Entry updated and moved back to draft status', 'success');
-            },
-            error: (error) => {
-              console.error('Error updating entry status:', error);
-              this.loadTimeEntries();
-            }
-          });
-        } else {
-          this.loadTimeEntries();
-        }
+      if (result && entry.status === 'rejected') {
+        const updatedEntry = { ...result, status: 'draft' };
+        this.timeEntryService.updateTimeEntry(entry.id, updatedEntry).subscribe({
+          next: () => {
+            this.refreshService.triggerRefresh();
+            this.showSnackBar('Entry updated and moved back to draft status', 'success');
+          },
+          error: (error) => {
+            console.error('Error updating entry status:', error);
+            this.refreshService.triggerRefresh();
+          }
+        });
       }
     });
   }
@@ -323,7 +320,7 @@ getFilteredEntries(): TimeEntry[] {
 
         this.timeEntryService.deleteTimeEntry(entry.id).subscribe({
           next: () => {
-            this.loadTimeEntries();
+            this.refreshService.triggerRefresh();
             this.showSnackBar(`Entry deleted successfully!`, 'success');
           },
           error: (error) => {
@@ -362,8 +359,8 @@ getFilteredEntries(): TimeEntry[] {
         this.loading = true;
 
         this.timeEntryService.sendForApproval(entry.id).subscribe({
-          next: (updatedEntry) => {
-            this.loadTimeEntries();
+          next: () => {
+            this.refreshService.triggerRefresh();
             this.showSnackBar(`Entry sent for approval successfully!`, 'success');
           },
           error: (error) => {
@@ -377,20 +374,28 @@ getFilteredEntries(): TimeEntry[] {
   }
 
   refreshData() {
-    this.loadTimeEntries();
+    this.refreshService.triggerRefresh();
   }
 
   private showSnackBar(message: string, type: 'success' | 'error' | 'info' = 'info') {
-    const config = {
+    this.snackBar.open(message, 'Close', {
       duration: 4000,
-      horizontalPosition: 'right' as const,
-      verticalPosition: 'top' as const,
-      panelClass: [
-        type === 'success' ? 'snackbar-success' :
-          type === 'error' ? 'snackbar-error' : 'snackbar-info'
-      ]
-    };
-
-    this.snackBar.open(message, 'Close', config);
+      horizontalPosition: 'right',
+      verticalPosition: 'top',
+      panelClass: [`snackbar-${type}`]
+    });
   }
+
+  showStatusDropdown = false;
+
+toggleStatus(value: string): void {
+  const index = this.filters.statuses.indexOf(value);
+  if (index === -1) {
+    this.filters.statuses.push(value);
+  } else {
+    this.filters.statuses.splice(index, 1);
+  }
+  this.onFilterChange();
+}
+
 }

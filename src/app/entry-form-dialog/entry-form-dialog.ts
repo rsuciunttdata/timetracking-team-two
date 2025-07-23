@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -7,9 +7,15 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { TimeEntryService } from '../services/time-entry.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { TimeEntryService } from '../services/time-entry.service';
+import { EntryRefreshService } from '../services/entry-refresh.service';
 import { TimeEntry } from '../models/time-entry.model';
+
+interface DialogData {
+  entry?: TimeEntry;
+  isEditMode?: boolean;
+}
 
 @Component({
   selector: 'app-entry-form-dialog',
@@ -42,6 +48,9 @@ export class EntryFormDialogComponent {
   dialogTitle = 'Add New Entry';
   submitButtonText = 'Add Entry';
   maxDate: string;
+
+  private refreshService = inject(EntryRefreshService);
+
 
   constructor(
     public dialogRef: MatDialogRef<EntryFormDialogComponent>,
@@ -76,8 +85,8 @@ export class EntryFormDialogComponent {
   }
 
   submit() {
-    if (!this.entry.date || !this.entry.startTime || !this.entry.endTime) {
-      this.showSnackBar('Please fill in all required fields (Date, Start Time, End Time)', 'error');
+    if (!this.entry.date || !this.entry.startTime || !this.entry.endTime || !this.entry.break) {
+      this.showSnackBar('Please fill in all required fields (Date, Start Time, End Time, Break Duration)', 'error');
       return;
     }
 
@@ -91,8 +100,13 @@ export class EntryFormDialogComponent {
       return;
     }
 
-    if (this.entry.break && !this.isValidBreakFormat()) {
-      this.showSnackBar('Break format must be like "1h 30m" (hours: 0-8, minutes: 0-59)', 'error');
+    if (!this.isValidBreakFormat()) {
+      this.showSnackBar('Break format must be like "1h 30m", "2h", or "45m" (hours: 0-8, minutes: 0-59)', 'error');
+      return;
+    }
+
+    if (!this.isBreakTimeLessThanWorkedTime()) {
+      this.showSnackBar('Break duration cannot be equal to or greater than the total worked time', 'error');
       return;
     }
 
@@ -101,15 +115,16 @@ export class EntryFormDialogComponent {
     if (this.isEditMode) {
       const updateData = {
         ...this.entry,
-        id: this.data.entry.id,
+        id: this.data.entry!.id,
         total: total,
         description: this.entry.description || ''
       };
 
-      this.timeEntryService.updateTimeEntry(this.data.entry.id, updateData).subscribe({
-        next: (updatedEntry) => {
+      this.timeEntryService.updateTimeEntry(this.data.entry!.id, updateData).subscribe({
+        next: () => {
           this.showSnackBar('Entry updated successfully!', 'success');
-          this.dialogRef.close(updatedEntry);
+          this.refreshService.triggerRefresh();
+          this.dialogRef.close();
         },
         error: (error) => {
           console.error('Error updating entry:', error);
@@ -124,9 +139,10 @@ export class EntryFormDialogComponent {
       };
 
       this.timeEntryService.createTimeEntry(createData).subscribe({
-        next: (createdEntry) => {
+        next: () => {
           this.showSnackBar('Entry created successfully!', 'success');
-          this.dialogRef.close(createdEntry);
+          this.refreshService.triggerRefresh();
+          this.dialogRef.close();
         },
         error: (error) => {
           console.error('Error creating entry:', error);
@@ -154,40 +170,54 @@ export class EntryFormDialogComponent {
 
   private isValidBreakFormat(): boolean {
     if (!this.entry.break || this.entry.break.trim() === '') {
-      return true;
-    }
-
-    const breakRegex = /^(\d+)h\s+(\d+)m$/;
-    const match = this.entry.break.trim().match(breakRegex);
-
-    if (!match) {
       return false;
     }
 
-    const hours = parseInt(match[1]);
-    const minutes = parseInt(match[2]);
+    const breakTime = this.entry.break.trim();
+    const fullFormatRegex = /^(\d+)h\s+(\d+)m$/;
+    const hoursOnlyRegex = /^(\d+)h$/;
+    const minutesOnlyRegex = /^(\d+)m$/;
+
+    let hours = 0;
+    let minutes = 0;
+
+    if (fullFormatRegex.test(breakTime)) {
+      const match = breakTime.match(fullFormatRegex);
+      hours = parseInt(match![1]);
+      minutes = parseInt(match![2]);
+    } else if (hoursOnlyRegex.test(breakTime)) {
+      const match = breakTime.match(hoursOnlyRegex);
+      hours = parseInt(match![1]);
+    } else if (minutesOnlyRegex.test(breakTime)) {
+      const match = breakTime.match(minutesOnlyRegex);
+      minutes = parseInt(match![1]);
+    } else {
+      return false;
+    }
 
     return hours >= 0 && hours <= 8 && minutes >= 0 && minutes <= 59;
   }
 
-  private calculateTotal(): string {
-    const start = this.entry.startTime;
-    const end = this.entry.endTime;
-    const breakTime = this.entry.break || '0';
-
-    if (!start || !end) return '0h 0m';
-
-    const [startHour, startMinute] = start.split(':').map(Number);
-    const [endHour, endMinute] = end.split(':').map(Number);
+  private isBreakTimeLessThanWorkedTime(): boolean {
+    const [startHour, startMinute] = this.entry.startTime.split(':').map(Number);
+    const [endHour, endMinute] = this.entry.endTime.split(':').map(Number);
 
     const startTotalMinutes = startHour * 60 + startMinute;
     const endTotalMinutes = endHour * 60 + endMinute;
-    let totalMinutes = endTotalMinutes - startTotalMinutes;
+    const totalWorkedMinutes = endTotalMinutes - startTotalMinutes;
 
-    const breakMinutes = this.parseBreakTime(breakTime);
-    totalMinutes -= breakMinutes;
+    const breakMinutes = this.parseBreakTime(this.entry.break);
+    return breakMinutes < totalWorkedMinutes;
+  }
 
-    if (totalMinutes < 0) totalMinutes = 0;
+  private calculateTotal(): string {
+    const [startHour, startMinute] = this.entry.startTime.split(':').map(Number);
+    const [endHour, endMinute] = this.entry.endTime.split(':').map(Number);
+
+    let totalMinutes = (endHour * 60 + endMinute) - (startHour * 60 + startMinute);
+    totalMinutes -= this.parseBreakTime(this.entry.break);
+
+    totalMinutes = Math.max(totalMinutes, 0);
 
     const hours = Math.floor(totalMinutes / 60);
     const minutes = totalMinutes % 60;
@@ -196,28 +226,34 @@ export class EntryFormDialogComponent {
   }
 
   private parseBreakTime(breakTime: string): number {
-    if (!breakTime) return 0;
+    const trimmed = breakTime.trim();
+    const fullFormatRegex = /^(\d+)h\s+(\d+)m$/;
+    const hoursOnlyRegex = /^(\d+)h$/;
+    const minutesOnlyRegex = /^(\d+)m$/;
 
-    const hoursMatch = breakTime.match(/(\d+)h/);
-    const minutesMatch = breakTime.match(/(\d+)m/);
+    let hours = 0, minutes = 0;
 
-    const hours = hoursMatch ? parseInt(hoursMatch[1]) : 0;
-    const minutes = minutesMatch ? parseInt(minutesMatch[1]) : 0;
+    if (fullFormatRegex.test(trimmed)) {
+      const match = trimmed.match(fullFormatRegex);
+      hours = parseInt(match![1]);
+      minutes = parseInt(match![2]);
+    } else if (hoursOnlyRegex.test(trimmed)) {
+      const match = trimmed.match(hoursOnlyRegex);
+      hours = parseInt(match![1]);
+    } else if (minutesOnlyRegex.test(trimmed)) {
+      const match = trimmed.match(minutesOnlyRegex);
+      minutes = parseInt(match![1]);
+    }
 
     return hours * 60 + minutes;
   }
 
   private showSnackBar(message: string, type: 'success' | 'error' | 'info' = 'info') {
-    const config = {
+    this.snackBar.open(message, 'Close', {
       duration: 4000,
-      horizontalPosition: 'right' as const,
-      verticalPosition: 'top' as const,
-      panelClass: [
-        type === 'success' ? 'snackbar-success' :
-          type === 'error' ? 'snackbar-error' : 'snackbar-info'
-      ]
-    };
-
-    this.snackBar.open(message, 'Close', config);
+      horizontalPosition: 'right',
+      verticalPosition: 'top',
+      panelClass: [`snackbar-${type}`]
+    });
   }
 }

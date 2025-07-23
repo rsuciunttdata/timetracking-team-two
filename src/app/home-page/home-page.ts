@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
@@ -10,7 +10,7 @@ import { CommonModule } from '@angular/common';
   templateUrl: './home-page.html',
   styleUrls: ['./home-page.css']
 })
-export class HomeComponent {
+export class HomeComponent implements OnInit{
   features = [
     {
       icon: '⏰',
@@ -35,6 +35,13 @@ export class HomeComponent {
   ];
 
   constructor(private router: Router) {}
+
+  isLoggedIn = false;
+
+  ngOnInit(): void {
+    this.isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+  }
+
 
   navigateToLogin(): void {
     this.router.navigate(['/login']);
