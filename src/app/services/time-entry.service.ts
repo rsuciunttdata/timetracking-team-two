@@ -9,6 +9,7 @@ import { TimeEntry, TimeEntryCreateRequest, TimeEntryUpdateRequest } from '../mo
   providedIn: 'root'
 })
 export class TimeEntryService {
+  // private readonly apiUrl = 'http://localhost:3001/api/time-entries';
   private readonly apiUrl = 'https://timetracking-ntt-backend.vercel.app/api/time-entries';
   private currentUuid: string = '';
 
@@ -30,7 +31,7 @@ export class TimeEntryService {
       throw new Error('Cannot access localStorage in server environment');
     }
 
-    const uuid = localStorage.getItem('userUuid');
+    const uuid = localStorage.getItem('uuid');
     if (!uuid) {
       throw new Error('User UUID not found. Please ensure user UUID is set.');
     }

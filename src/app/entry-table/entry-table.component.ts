@@ -69,8 +69,6 @@ export class EntryTableComponent implements OnInit, AfterViewInit {
 
   private refreshService = inject(EntryRefreshService);
 
-  private userUuid = '001';
-
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
     private dialog: MatDialog,
@@ -79,10 +77,6 @@ export class EntryTableComponent implements OnInit, AfterViewInit {
   ) {
     this.instanceId = ++EntryTableComponent.instanceCount;
     console.log(`EntryTableComponent constructed [instance ${this.instanceId}]`);
-
-    if (isPlatformBrowser(this.platformId)) {
-      this.initializeUser();
-    }
 
     effect(() => {
       this.refreshService.refreshSignal();
@@ -103,12 +97,6 @@ export class EntryTableComponent implements OnInit, AfterViewInit {
   ngAfterViewInit() {
     console.log('EntryTableComponent ngAfterViewInit');
     this.dataSource.sort = this.sort;
-  }
-
-  private initializeUser() {
-    if (isPlatformBrowser(this.platformId) && typeof localStorage !== 'undefined') {
-      localStorage.setItem('userUuid', this.userUuid);
-    }
   }
 
   loadTimeEntries() {
