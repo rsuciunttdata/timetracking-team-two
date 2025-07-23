@@ -15,18 +15,22 @@
           Streamline your workforce management with our enterprise-grade time tracking solution. 
           Secure, intuitive, and designed for modern teams.
         </p>
+      
         <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
           <button 
+            *ngIf="!isLoggedIn"
             (click)="navigateToLogin()"
             class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 hover:shadow-xl transform hover:-translate-y-1">
             Access Your Account
           </button>
+
           <button 
             (click)="scrollToFeatures()"
             class="border-2 border-gray-300 hover:border-blue-600 text-gray-700 hover:text-blue-600 px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 hover:shadow-lg">
             Learn More
           </button>
         </div>
+
       </div>
     </div>
     
@@ -73,11 +77,13 @@
       <p class="text-xl text-blue-100 mb-8 leading-relaxed">
         Your administrator has set up your account. Simply log in to begin tracking your time and boost your productivity.
       </p>
-      <button 
+          <button 
+        *ngIf="!isLoggedIn"
         (click)="navigateToLogin()"
         class="bg-white hover:bg-gray-50 text-blue-600 px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 hover:shadow-xl transform hover:-translate-y-1">
         Log In Now
       </button>
+
     </div>
   </section>
 
