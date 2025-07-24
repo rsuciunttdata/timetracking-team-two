@@ -14,11 +14,17 @@ function getUuidFromRequest(req) {
 }
 
 async function readDataFile(dataFile, uuid) {
+
   try {
     await fs.access(dataFile);
+
     const data = await fs.readFile(dataFile, 'utf8');
-    return { exists: true, data: JSON.parse(data) };
+
+    const parsed = JSON.parse(data);
+
+    return { exists: true, data: parsed };
   } catch (error) {
+
     if (error.code === 'ENOENT') {
       return { exists: false, data: null };
     }
@@ -108,32 +114,46 @@ export default async function handler(req, res) {
     }
 
     if (req.method === 'DELETE') {
-      const result = await readDataFile(dataFile, uuid);
+  try {
+    const result = await readDataFile(dataFile, uuid);
 
-      if (!result.exists) {
-        return res.status(404).json({
-          error: 'User not found',
-          message: `No time entries found for user with UUID: ${uuid}. Cannot delete entry.`,
-          uuid: uuid
-        });
-      }
-
-      const data = result.data;
-      const entryIndex = data.timeEntries.findIndex(e => e.id === parseInt(id));
-
-      if (entryIndex === -1) {
-        return res.status(404).json({ error: 'Entry not found' });
-      }
-
-      data.timeEntries.splice(entryIndex, 1);
-
-      const success = await writeDataFile(dataFile, data);
-      if (success) {
-        return res.status(204).end();
-      } else {
-        return res.status(500).json({ error: 'Failed to delete entry' });
-      }
+    if (!result.exists) {
+      return res.status(404).json({
+        error: 'User not found',
+        message: `No time entries found for user with UUID: ${uuid}. Cannot delete entry.`,
+        uuid: uuid
+      });
     }
+
+    const data = result.data;
+
+    if (!Array.isArray(data.timeEntries)) {
+      console.error('[ERROR] Invalid format: timeEntries is not an array', data);
+      return res.status(500).json({ error: 'Invalid data format' });
+    }
+
+    const entryIndex = data.timeEntries.findIndex(e => e.id === parseInt(id));
+
+    if (entryIndex === -1) {
+      return res.status(404).json({ error: 'Entry not found' });
+    }
+
+    data.timeEntries.splice(entryIndex, 1);
+
+    const success = await writeDataFile(dataFile, data);
+
+    if (success) {
+      return res.status(204).end();
+    } else {
+      return res.status(500).json({ error: 'Failed to write file' });
+    }
+  } catch (error) {
+    console.error('[DELETE ERROR]', error);
+    return res.status(500).json({ error: 'Internal server error', details: error.message });
+  }
+}
+
+
 
     return res.status(405).json({ error: 'Method not allowed' });
 

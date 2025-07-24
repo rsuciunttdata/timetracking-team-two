@@ -9,8 +9,8 @@ import { TimeEntry, TimeEntryCreateRequest, TimeEntryUpdateRequest } from '../mo
   providedIn: 'root'
 })
 export class TimeEntryService {
-  // private readonly apiUrl = 'http://localhost:3001/api/time-entries';
-  private readonly apiUrl = 'https://timetracking-ntt-backend.vercel.app/api/time-entries';
+  // private readonly apiUrl = 'https://timetracking-ntt-backend.vercel.app/api/time-entries';
+  private readonly apiUrl = 'http://localhost:3001/api/time-entries';
   private currentUuid: string = '';
 
   constructor(
@@ -23,17 +23,21 @@ export class TimeEntryService {
   }
 
   private getUserUuid(): string {
+
     if (this.currentUuid) {
       return this.currentUuid;
     }
 
     if (!isPlatformBrowser(this.platformId) || typeof localStorage === 'undefined') {
+      console.error('❌ [Service] Cannot access localStorage in server environment');
       throw new Error('Cannot access localStorage in server environment');
     }
 
     const uuid = localStorage.getItem('uuid');
+
     if (!uuid) {
-      throw new Error('User UUID not found. Please ensure user UUID is set.');
+      console.error('❌ [Service] No UUID found in localStorage');
+      throw new Error('User UUID not found. Please ensure user is logged in.');
     }
     return uuid;
   }
@@ -49,11 +53,19 @@ export class TimeEntryService {
   }
 
   getTimeEntries(): Observable<TimeEntry[]> {
+    const uuid = this.getUserUuid();
+    const url = `${this.apiUrl}?uuid=${uuid}`;
+
     return this.http.get<TimeEntry[]>(this.apiUrl, {
       headers: this.getHeaders(),
       params: this.getHttpParams()
     }).pipe(
-      catchError(this.handleError)
+      tap(entries => {
+      }),
+      catchError(error => {
+        console.error('❌ [Service] API Error:', error);
+        return this.handleError(error);
+      })
     );
   }
 
@@ -85,11 +97,18 @@ export class TimeEntryService {
   }
 
   deleteTimeEntry(id: number): Observable<void> {
+    const uuid = this.getUserUuid();
+
     return this.http.delete<void>(`${this.apiUrl}/${id}`, {
       headers: this.getHeaders(),
       params: this.getHttpParams()
     }).pipe(
-      catchError(this.handleError)
+      tap(() => {
+      }),
+      catchError(error => {
+        console.error(`❌ [Service] Failed to delete entry ${id}:`, error);
+        return this.handleError(error);
+      })
     );
   }
 

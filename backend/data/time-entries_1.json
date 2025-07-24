@@ -177,30 +177,6 @@
       "rejectionMessage": "",
       "description": "",
       "total": "1h 0m"
-    },
-    {
-      "id": 16,
-      "date": "2025-07-16",
-      "project": "",
-      "startTime": "17:15",
-      "endTime": "18:15",
-      "break": "45m",
-      "status": "draft",
-      "rejectionMessage": "",
-      "description": "",
-      "total": "0h 15m"
-    },
-    {
-      "id": 17,
-      "date": "2025-07-16",
-      "project": "",
-      "startTime": "23:15",
-      "endTime": "23:20",
-      "break": "2m",
-      "status": "draft",
-      "rejectionMessage": "",
-      "description": "",
-      "total": "0h 3m"
     }
   ]
 }

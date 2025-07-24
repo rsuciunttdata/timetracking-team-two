@@ -11,6 +11,30 @@
       "project": "Project Alpha",
       "description": "Bug fixing and code review for user authentication module",
       "submittedForApprovalAt": "2025-07-14T12:49:46.950Z"
+    },
+    {
+      "id": 2,
+      "date": "2025-07-24",
+      "project": "",
+      "startTime": "15:37",
+      "endTime": "20:37",
+      "break": "45m",
+      "status": "draft",
+      "rejectionMessage": "",
+      "description": "",
+      "total": "4h 15m"
+    },
+    {
+      "id": 3,
+      "date": "2025-07-24",
+      "project": "",
+      "startTime": "15:37",
+      "endTime": "21:37",
+      "break": "1h",
+      "status": "draft",
+      "rejectionMessage": "",
+      "description": "",
+      "total": "5h 0m"
     }
   ]
 }
