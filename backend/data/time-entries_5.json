@@ -18,11 +18,12 @@
       "project": "",
       "startTime": "15:37",
       "endTime": "20:37",
-      "break": "45m",
-      "status": "draft",
+      "break": "2h 00m",
+      "status": "pending",
       "rejectionMessage": "",
       "description": "",
-      "total": "4h 15m"
+      "total": "3h 0m",
+      "submittedForApprovalAt": "2025-07-24T14:49:09.679Z"
     },
     {
       "id": 3,

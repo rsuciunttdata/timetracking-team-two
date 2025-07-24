@@ -400,6 +400,16 @@ export class EntryTableComponent implements OnInit, AfterViewInit {
     this.refreshService.triggerRefresh();
   }
 
+  toggleStatus(value: string): void {
+  const index = this.filters.statuses.indexOf(value);
+  if (index === -1) {
+    this.filters.statuses.push(value);
+  } else {
+    this.filters.statuses.splice(index, 1);
+  }
+  this.onFilterChange();
+}
+
   private showSnackBar(message: string, type: 'success' | 'error' | 'info' = 'info') {
     this.snackBar.open(message, 'Close', {
       duration: 4000,
