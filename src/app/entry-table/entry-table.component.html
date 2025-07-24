@@ -27,7 +27,7 @@
           </svg>
           Date Range
         </h4>
-        
+
         <!-- From Date -->
         <div class="space-y-2">
           <label class="block text-xs font-medium text-gray-600 uppercase tracking-wider">From</label>
@@ -63,11 +63,11 @@
           </svg>
           Status
         </h4>
-        
+
         <div class="space-y-3">
-          <div *ngFor="let status of statusOptions" 
-               class="flex items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
-               (click)="toggleStatus(status.value)">
+          <div *ngFor="let status of statusOptions"
+                class="flex items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+                (click)="toggleStatus(status.value)">
             <input
               type="checkbox"
               [checked]="filters.statuses.includes(status.value)"
@@ -94,7 +94,7 @@
             entries
           </div>
         </div>
-        
+
         <button
           (click)="clearFilters()"
           class="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 flex items-center justify-center space-x-2"
@@ -345,11 +345,11 @@
                 (filtered from {{ allEntries.length }} total)
               </span>
             </div>
-            
+
             <!-- Pagination -->
             <div class="flex items-center space-x-4">
-              <button 
-                (click)="previousPage()" 
+              <button
+                (click)="previousPage()"
                 [disabled]="currentPage === 0"
                 class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
                 Previous
@@ -357,7 +357,7 @@
               <span class="text-sm text-gray-700 bg-white px-3 py-2 border border-gray-300 rounded-lg">
                 Page {{ currentPage + 1 }}
               </span>
-              <button 
+              <button
                 (click)="nextPage()"
                 [disabled]="(currentPage + 1) * pageSize >= getFilteredEntries().length"
                 class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
