@@ -1,0 +1,66 @@
+{
+  "timeEntries": [
+    {
+      "id": 1,
+      "date": "2025-07-10",
+      "startTime": "09:00",
+      "endTime": "17:30",
+      "break": "1h 00m",
+      "total": "7h 30m",
+      "status": "pending",
+      "project": "Project Alpha",
+      "description": "Bug fixing and code review for user authentication module",
+      "submittedForApprovalAt": "2025-07-14T12:49:46.950Z"
+    },
+    {
+      "id": 2,
+      "date": "2025-07-24",
+      "project": "",
+      "startTime": "15:37",
+      "endTime": "20:37",
+      "break": "2h 00m",
+      "status": "pending",
+      "rejectionMessage": "",
+      "description": "",
+      "total": "3h 0m",
+      "submittedForApprovalAt": "2025-07-24T14:49:09.679Z"
+    },
+    {
+      "id": 3,
+      "date": "2025-07-24",
+      "project": "",
+      "startTime": "15:37",
+      "endTime": "21:37",
+      "break": "1h",
+      "status": "draft",
+      "rejectionMessage": "",
+      "description": "",
+      "total": "5h 0m"
+    },
+    {
+      "id": 4,
+      "date": "2025-07-29",
+      "project": "",
+      "startTime": "10:07",
+      "endTime": "11:07",
+      "break": "5m",
+      "status": "draft",
+      "rejectionMessage": "",
+      "description": "",
+      "total": "0h 55m"
+    },
+    {
+      "id": 5,
+      "date": "2025-07-25",
+      "project": "",
+      "startTime": "10:12",
+      "endTime": "12:12",
+      "break": "5m",
+      "status": "pending",
+      "rejectionMessage": "",
+      "description": "",
+      "total": "1h 55m",
+      "submittedForApprovalAt": "2025-07-31T07:26:53.459Z"
+    }
+  ]
+}

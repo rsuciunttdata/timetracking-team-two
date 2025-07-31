@@ -44,7 +44,7 @@ export class LoginComponent {
 
           if (matchedUser) {
             localStorage.setItem('isLoggedIn', 'true');
-            localStorage.setItem('uuid', matchedUser.uid);
+            localStorage.setItem('uuid', matchedUser.uuid);
             this.router.navigate(['/dashboard']);
           } else {
             this.loginError = 'Invalid email or password.';

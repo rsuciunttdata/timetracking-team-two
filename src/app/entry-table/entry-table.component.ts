@@ -1,5 +1,5 @@
-import { Component, ViewChild, OnInit, AfterViewInit, inject, effect } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, ViewChild, OnInit, AfterViewInit, inject, effect, signal, computed, PLATFORM_ID, Inject } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 import { MatSortModule, MatSort } from '@angular/material/sort';
@@ -41,18 +41,100 @@ export class EntryTableComponent implements OnInit, AfterViewInit {
 
   displayedColumns: string[] = ['date', 'startTime', 'endTime', 'break', 'total', 'status', 'actions'];
   dataSource = new MatTableDataSource<TimeEntry>();
-  allEntries: TimeEntry[] = [];
-  loading = false;
-  isStatusDropdownOpen = false;
-  currentPage = 0;
   pageSize = 10;
-  pagedEntries: TimeEntry[] = [];
+  isDialogOpen = false;
 
-  filters = {
+  // === SIGNALS ===
+  
+  // Core data signals
+  entriesSignal = signal<TimeEntry[]>([]);
+  isLoadingSignal = signal<boolean>(false);
+  errorSignal = signal<string | null>(null);
+
+  // Filter signals
+  filtersSignal = signal({
     dateFrom: '',
     dateTo: '',
     statuses: [] as string[]
-  };
+  });
+
+  // Pagination signals
+  currentPageSignal = signal<number>(0);
+  pageSizeSignal = signal<number>(10);
+
+  // === COMPUTED SIGNALS ===
+
+  // Filtered entries based on current filters
+  filteredEntriesSignal = computed(() => {
+    const entries = this.entriesSignal();
+    const filters = this.filtersSignal();
+    
+    let filtered = [...entries];
+
+    // Date from filter
+    if (filters.dateFrom) {
+      const dateFrom = new Date(filters.dateFrom);
+      filtered = filtered.filter(entry => new Date(entry.date) >= dateFrom);
+    }
+
+    // Date to filter
+    if (filters.dateTo) {
+      const dateTo = new Date(filters.dateTo);
+      filtered = filtered.filter(entry => new Date(entry.date) <= dateTo);
+    }
+
+    // Status filters
+    if (filters.statuses.length > 0) {
+      filtered = filtered.filter(entry => filters.statuses.includes(entry.status));
+    }
+
+    return filtered;
+  });
+
+  // Paginated entries for display
+  paginatedEntriesSignal = computed(() => {
+    const filtered = this.filteredEntriesSignal();
+    const currentPage = this.currentPageSignal();
+    const pageSize = this.pageSizeSignal();
+    
+    const startIndex = currentPage * pageSize;
+    const endIndex = startIndex + pageSize;
+    
+    return filtered.slice(startIndex, endIndex);
+  });
+
+  // Total pages for pagination
+  totalPagesSignal = computed(() => {
+    const filtered = this.filteredEntriesSignal();
+    const pageSize = this.pageSizeSignal();
+    return Math.ceil(filtered.length / pageSize);
+  });
+
+  // Can go to next page
+  canGoNextSignal = computed(() => {
+    const currentPage = this.currentPageSignal();
+    const totalPages = this.totalPagesSignal();
+    return currentPage < totalPages - 1;
+  });
+
+  // Can go to previous page
+  canGoPreviousSignal = computed(() => {
+    return this.currentPageSignal() > 0;
+  });
+
+  // === LEGACY COMPUTED PROPERTIES FOR TEMPLATE COMPATIBILITY ===
+  
+  get filters() {
+    return this.filtersSignal();
+  }
+
+  set filters(value: any) {
+    this.filtersSignal.set(value);
+  }
+
+  get currentPage() {
+    return this.currentPageSignal();
+  }
 
   statusOptions = [
     { value: 'draft', label: 'Draft' },
@@ -65,11 +147,11 @@ export class EntryTableComponent implements OnInit, AfterViewInit {
 
   private static instanceCount = 0;
   private instanceId: number;
-  private isDialogOpen = false;
-
   private refreshService = inject(EntryRefreshService);
+  private userUuid = '001';
 
   constructor(
+    @Inject(PLATFORM_ID) private platformId: Object,
     private dialog: MatDialog,
     private timeEntryService: TimeEntryService,
     private snackBar: MatSnackBar
@@ -77,16 +159,37 @@ export class EntryTableComponent implements OnInit, AfterViewInit {
     this.instanceId = ++EntryTableComponent.instanceCount;
     console.log(`EntryTableComponent constructed [instance ${this.instanceId}]`);
 
+    if (isPlatformBrowser(this.platformId)) {
+      this.initializeUser();
+    }
+
+    // Effect for refresh signal
     effect(() => {
       this.refreshService.refreshSignal();
       console.log(`[instance ${this.instanceId}] refreshSignal triggered`);
-      this.loadTimeEntries();
+      if (isPlatformBrowser(this.platformId)) {
+        this.loadTimeEntries();
+      }
+    });
+
+    // Effect to update dataSource when paginated entries change
+    effect(() => {
+      const paginatedEntries = this.paginatedEntriesSignal();
+      this.dataSource.data = paginatedEntries;
+    });
+
+    // Effect to reset page when filters change
+    effect(() => {
+      this.filteredEntriesSignal(); // Track filtered entries
+      this.currentPageSignal.set(0); // Reset to first page when filters change
     });
   }
 
   ngOnInit() {
     console.log('EntryTableComponent ngOnInit');
-    this.loadTimeEntries();
+    if (isPlatformBrowser(this.platformId)) {
+      this.loadTimeEntries();
+    }
   }
 
   ngAfterViewInit() {
@@ -94,106 +197,92 @@ export class EntryTableComponent implements OnInit, AfterViewInit {
     this.dataSource.sort = this.sort;
   }
 
+  private initializeUser() {
+    if (isPlatformBrowser(this.platformId) && typeof localStorage !== 'undefined') {
+      localStorage.setItem('userUuid', this.userUuid);
+      const storedUuid = localStorage.getItem('userUuid');
+    }
+  }
+
+  // === DATA LOADING METHODS ===
+
   loadTimeEntries() {
-    this.loading = true;
+    if (!isPlatformBrowser(this.platformId)) return;
+
+    this.isLoadingSignal.set(true);
+    this.errorSignal.set(null);
 
     this.timeEntryService.getTimeEntries().subscribe({
       next: (entries) => {
-        this.allEntries = entries;
-        this.applyFilters();
-        this.loading = false;
+        this.entriesSignal.set(entries);
+        this.isLoadingSignal.set(false);
         this.showSnackBar(`Loaded ${entries.length} entries`, 'success');
       },
-      error: (error) => {
-        console.error('Error loading time entries:', error);
-        this.showSnackBar('Error loading time entries. Please check if backend is running.', 'error');
-        this.loading = false;
+      error: (err) => {
+        this.errorSignal.set('Error loading entries.');
+        console.error('loadTimeEntries error:', err);
+        this.showSnackBar('Error loading entries. Please check the backend.', 'error');
+        this.isLoadingSignal.set(false);
       }
     });
   }
 
-  applyFilters() {
-    let filteredEntries = [...this.allEntries];
+  // === FILTER METHODS ===
 
-    if (this.filters.dateFrom) {
-      const dateFrom = new Date(this.filters.dateFrom);
-      filteredEntries = filteredEntries.filter(entry =>
-        new Date(entry.date) >= dateFrom
-      );
-    }
-
-    if (this.filters.dateTo) {
-      const dateTo = new Date(this.filters.dateTo);
-      filteredEntries = filteredEntries.filter(entry =>
-        new Date(entry.date) <= dateTo
-      );
-    }
-
-    if (this.filters.statuses.length > 0) {
-      filteredEntries = filteredEntries.filter(entry =>
-        this.filters.statuses.includes(entry.status)
-      );
-    }
-
-    this.currentPage = 0;
-    this.setPagedEntries(filteredEntries);
+  onFilterChange() {
+    // Filters are automatically applied through computed signals
+    // No manual applyFilters call needed!
   }
 
-  setPagedEntries(entries: TimeEntry[]) {
-    const startIndex = this.currentPage * this.pageSize;
-    const endIndex = startIndex + this.pageSize;
-    this.pagedEntries = entries.slice(startIndex, endIndex);
-    this.dataSource.data = this.pagedEntries;
+  updateFilters(updates: Partial<typeof this.filters>) {
+    const currentFilters = this.filtersSignal();
+    this.filtersSignal.set({ ...currentFilters, ...updates });
   }
+
+  clearFilters() {
+    this.filtersSignal.set({
+      dateFrom: '',
+      dateTo: '',
+      statuses: []
+    });
+    this.showSnackBar('Filters cleared', 'info');
+  }
+
+  toggleStatus(value: string): void {
+    const currentFilters = this.filtersSignal();
+    const currentStatuses = [...currentFilters.statuses];
+    const index = currentStatuses.indexOf(value);
+    
+    if (index === -1) {
+      currentStatuses.push(value);
+    } else {
+      currentStatuses.splice(index, 1);
+    }
+    
+    this.updateFilters({ statuses: currentStatuses });
+  }
+
+  // === PAGINATION METHODS ===
 
   nextPage() {
-    const totalPages = Math.ceil(this.allEntries.length / this.pageSize);
-    if (this.currentPage < totalPages - 1) {
-      this.currentPage++;
-      this.setPagedEntries(this.getFilteredEntries());
+    if (this.canGoNextSignal()) {
+      this.currentPageSignal.update(page => page + 1);
     }
   }
 
   previousPage() {
-    if (this.currentPage > 0) {
-      this.currentPage--;
-      this.setPagedEntries(this.getFilteredEntries());
+    if (this.canGoPreviousSignal()) {
+      this.currentPageSignal.update(page => page - 1);
     }
   }
+
+  // === LEGACY METHODS FOR TEMPLATE COMPATIBILITY ===
 
   getFilteredEntries(): TimeEntry[] {
-    let filtered = [...this.allEntries];
-
-    if (this.filters.dateFrom) {
-      const dateFrom = new Date(this.filters.dateFrom);
-      filtered = filtered.filter(entry => new Date(entry.date) >= dateFrom);
-    }
-
-    if (this.filters.dateTo) {
-      const dateTo = new Date(this.filters.dateTo);
-      filtered = filtered.filter(entry => new Date(entry.date) <= dateTo);
-    }
-
-    if (this.filters.statuses.length > 0) {
-      filtered = filtered.filter(entry => this.filters.statuses.includes(entry.status));
-    }
-
-    return filtered;
+    return this.filteredEntriesSignal();
   }
 
-  clearFilters() {
-    this.filters = {
-      dateFrom: '',
-      dateTo: '',
-      statuses: []
-    };
-    this.applyFilters();
-    this.showSnackBar('Filters cleared', 'info');
-  }
-
-  onFilterChange() {
-    this.applyFilters();
-  }
+  // === STATUS HELPER METHODS ===
 
   getStatusIcon(status: string): string {
     switch (status) {
@@ -227,13 +316,15 @@ export class EntryTableComponent implements OnInit, AfterViewInit {
 
   getStatusIconColor(status: string): string {
     switch (status) {
-      case 'accepted': return 'text-green-600';
-      case 'pending': return 'text-blue-600';
-      case 'draft': return 'text-yellow-600';
-      case 'rejected': return 'text-red-600';
-      default: return 'text-gray-600';
+      case 'accepted': return 'bg-green-600';
+      case 'pending': return 'bg-blue-600';
+      case 'draft': return 'bg-yellow-600';
+      case 'rejected': return 'bg-red-600';
+      default: return 'bg-gray-600';
     }
   }
+
+  // === ENTRY PERMISSION METHODS ===
 
   canEditEntry(entry: TimeEntry): boolean {
     return entry.status === 'draft' || entry.status === 'rejected';
@@ -243,10 +334,10 @@ export class EntryTableComponent implements OnInit, AfterViewInit {
     return entry.status === 'draft';
   }
 
+  // === CRUD OPERATIONS ===
+
   addEntry() {
-    if (this.isDialogOpen) {
-      return;
-    }
+    if (this.isDialogOpen) return;
 
     this.isDialogOpen = true;
 
@@ -256,37 +347,65 @@ export class EntryTableComponent implements OnInit, AfterViewInit {
       data: {}
     });
 
-    dialogRef.afterClosed().subscribe(() => {
+    dialogRef.afterClosed().subscribe(newEntry => {
       this.isDialogOpen = false;
+
+      if (newEntry) {
+        this.isLoadingSignal.set(true);
+        this.timeEntryService.createTimeEntry(newEntry).subscribe({
+          next: (createdEntry) => {
+            // Update entries signal with new entry
+            this.entriesSignal.update(entries => [...entries, createdEntry]);
+            this.showSnackBar('Entry added successfully!', 'success');
+            this.isLoadingSignal.set(false);
+          },
+          error: (err) => {
+            console.error('Add entry error:', err);
+            this.errorSignal.set('Failed to add entry');
+            this.showSnackBar('Failed to add entry', 'error');
+            this.isLoadingSignal.set(false);
+          }
+        });
+      }
     });
   }
 
   editEntry(entry: TimeEntry) {
     if (!this.canEditEntry(entry)) {
-      this.showSnackBar('Cannot edit entry that is pending approval or already approved', 'error');
+      this.showSnackBar('Cannot edit non-draft/rejected entry', 'error');
       return;
     }
 
     const dialogRef = this.dialog.open(EntryFormDialogComponent, {
       width: '500px',
       disableClose: true,
-      data: {
-        entry: entry,
-        isEditMode: true
-      }
+      data: { entry, isEditMode: true }
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      if (result && entry.status === 'rejected') {
-        const updatedEntry = { ...result, status: 'draft' };
+      if (result) {
+        const updatedEntry = {
+          ...entry,
+          ...result,
+          status: entry.status === 'rejected' ? 'draft' : entry.status
+        };
+
+        this.isLoadingSignal.set(true);
+
         this.timeEntryService.updateTimeEntry(entry.id, updatedEntry).subscribe({
           next: () => {
-            this.refreshService.triggerRefresh();
-            this.showSnackBar('Entry updated and moved back to draft status', 'success');
+            // Update entries signal with modified entry
+            this.entriesSignal.update(entries => 
+              entries.map(e => e.id === entry.id ? updatedEntry : e)
+            );
+            this.showSnackBar('Entry updated successfully!', 'success');
+            this.isLoadingSignal.set(false);
           },
-          error: (error) => {
-            console.error('Error updating entry status:', error);
-            this.refreshService.triggerRefresh();
+          error: (err) => {
+            console.error('Update error:', err);
+            this.errorSignal.set('Failed to update entry');
+            this.showSnackBar('Failed to update entry', 'error');
+            this.isLoadingSignal.set(false);
           }
         });
       }
@@ -295,38 +414,40 @@ export class EntryTableComponent implements OnInit, AfterViewInit {
 
   deleteEntry(entry: TimeEntry) {
     if (!this.canEditEntry(entry)) {
-      this.showSnackBar('Cannot delete entry that is pending approval or already approved', 'error');
+      this.showSnackBar('Cannot delete non-editable entry', 'error');
       return;
     }
 
-    const dialogData: ConfirmationDialogData = {
-      title: 'Delete Time Entry',
-      message: `Are you sure you want to delete this time entry?`,
-      subMessage: `Date: ${entry.date}, Project: ${entry.project || 'N/A'}`,
-      confirmText: 'Delete Entry',
-      cancelText: 'Keep Entry',
-      type: 'danger',
-      icon: 'delete_forever'
-    };
-
     const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
       width: '500px',
-      data: dialogData
+      data: {
+        title: 'Delete Entry',
+        message: 'Are you sure?',
+        confirmText: 'Delete Entry',
+        cancelText: 'Cancel',
+        icon: 'delete_forever',
+        type: 'danger'
+      }
     });
 
     dialogRef.afterClosed().subscribe(confirmed => {
       if (confirmed) {
-        this.loading = true;
+        this.isLoadingSignal.set(true);
 
         this.timeEntryService.deleteTimeEntry(entry.id).subscribe({
           next: () => {
-            this.refreshService.triggerRefresh();
-            this.showSnackBar(`Entry deleted successfully!`, 'success');
+            // Remove entry from entries signal
+            this.entriesSignal.update(entries => 
+              entries.filter(e => e.id !== entry.id)
+            );
+            this.showSnackBar('Entry deleted successfully!', 'success');
+            this.isLoadingSignal.set(false);
           },
-          error: (error) => {
-            console.error('Error deleting time entry:', error);
-            this.showSnackBar('Error deleting time entry. Please try again.', 'error');
-            this.loading = false;
+          error: (err) => {
+            console.error('Delete error:', err);
+            this.errorSignal.set('Failed to delete entry');
+            this.showSnackBar('Failed to delete entry', 'error');
+            this.isLoadingSignal.set(false);
           }
         });
       }
@@ -356,7 +477,7 @@ export class EntryTableComponent implements OnInit, AfterViewInit {
 
     dialogRef.afterClosed().subscribe(confirmed => {
       if (confirmed) {
-        this.loading = true;
+        this.isLoadingSignal.set(true);
 
         this.timeEntryService.sendForApproval(entry.id).subscribe({
           next: () => {
@@ -366,7 +487,7 @@ export class EntryTableComponent implements OnInit, AfterViewInit {
           error: (error) => {
             console.error('Error sending entry for approval:', error);
             this.showSnackBar('Error sending entry for approval. Please try again.', 'error');
-            this.loading = false;
+            this.isLoadingSignal.set(false);
           }
         });
       }
@@ -385,17 +506,4 @@ export class EntryTableComponent implements OnInit, AfterViewInit {
       panelClass: [`snackbar-${type}`]
     });
   }
-
-  showStatusDropdown = false;
-
-toggleStatus(value: string): void {
-  const index = this.filters.statuses.indexOf(value);
-  if (index === -1) {
-    this.filters.statuses.push(value);
-  } else {
-    this.filters.statuses.splice(index, 1);
-  }
-  this.onFilterChange();
-}
-
 }

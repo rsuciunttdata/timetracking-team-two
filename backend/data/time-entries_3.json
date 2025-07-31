@@ -1,0 +1,40 @@
+{
+  "timeEntries": [
+    {
+      "id": 1,
+      "date": "2025-07-10",
+      "startTime": "09:00",
+      "endTime": "17:30",
+      "break": "1h 00m",
+      "total": "7h 30m",
+      "status": "pending",
+      "project": "Project Alpha",
+      "description": "Bug fixing and code review for user authentication module",
+      "submittedForApprovalAt": "2025-07-14T12:49:46.950Z"
+    },
+    {
+      "id": 2,
+      "date": "2025-07-10",
+      "startTime": "08:30",
+      "endTime": "12:00",
+      "break": "30m",
+      "total": "3h 00m",
+      "status": "pending",
+      "project": "Project Beta",
+      "description": "UI development for dashboard components",
+      "submittedForApprovalAt": "2025-07-14T12:44:55.623Z"
+    },
+    {
+      "id": 3,
+      "date": "2025-07-09",
+      "startTime": "10:00",
+      "endTime": "15:00",
+      "break": "45m",
+      "total": "4h 15m",
+      "status": "pending",
+      "project": "Project Gamma",
+      "description": "Database optimization and query performance tuning",
+      "submittedForApprovalAt": "2025-07-14T12:44:55.623Z"
+    }
+  ]
+}
