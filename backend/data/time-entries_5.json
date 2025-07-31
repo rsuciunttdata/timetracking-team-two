@@ -36,6 +36,31 @@
       "rejectionMessage": "",
       "description": "",
       "total": "5h 0m"
+    },
+    {
+      "id": 4,
+      "date": "2025-07-29",
+      "project": "",
+      "startTime": "10:07",
+      "endTime": "11:07",
+      "break": "5m",
+      "status": "draft",
+      "rejectionMessage": "",
+      "description": "",
+      "total": "0h 55m"
+    },
+    {
+      "id": 5,
+      "date": "2025-07-25",
+      "project": "",
+      "startTime": "10:12",
+      "endTime": "12:12",
+      "break": "5m",
+      "status": "pending",
+      "rejectionMessage": "",
+      "description": "",
+      "total": "1h 55m",
+      "submittedForApprovalAt": "2025-07-31T07:26:53.459Z"
     }
   ]
 }
