@@ -1,3 +1,5 @@
+const { validateTimeEntry, sanitizeEntryData } = require('./api/time-entries/validation');
+
 const express = require('express');
 const fs = require('fs').promises;
 const path = require('path');
@@ -29,26 +31,18 @@ function requireUuid(req, res, next) {
 }
 
 async function readDataFile(dataFile) {
-  console.log(`[DEBUG] Trying to read file: ${dataFile}`);
 
   try {
     await fs.access(dataFile);
-    console.log(`[DEBUG] File exists: ${dataFile}`);
 
     const data = await fs.readFile(dataFile, 'utf8');
-    console.log(`[DEBUG] File content length: ${data.length}`);
-    console.log(`[DEBUG] File content preview: ${data.substring(0, 200)}`);
 
     const parsed = JSON.parse(data);
-    console.log(`[DEBUG] Parsed entries count: ${parsed.timeEntries ? parsed.timeEntries.length : 'NO timeEntries property'}`);
 
     return parsed;
   } catch (error) {
-    console.log(`[DEBUG] Error reading file: ${error.message}`);
-    console.log(`[DEBUG] Error code: ${error.code}`);
 
     if (error.code === 'ENOENT') {
-      console.log(`[DEBUG] Creating new data file: ${dataFile}`);
       return { timeEntries: [] };
     }
     console.error('Error reading data file:', error);
@@ -59,7 +53,6 @@ async function readDataFile(dataFile) {
 async function writeDataFile(dataFile, data) {
   try {
     await fs.writeFile(dataFile, JSON.stringify(data, null, 2), 'utf8');
-    console.log('[Server] Data written to file successfully');
     return true;
   } catch (error) {
     console.error('Error writing data file:', error);
@@ -69,12 +62,9 @@ async function writeDataFile(dataFile, data) {
 
 app.get('/api/time-entries', requireUuid, async (req, res) => {
   try {
-    console.log(`[DEBUG] GET request for UUID: ${req.userUuid}`);
     const dataFile = getDataFilePath(req.userUuid);
-    console.log(`[DEBUG] Looking for file: ${dataFile}`);
 
     const data = await readDataFile(dataFile);
-    console.log(`[Server] Retrieved ${data.timeEntries.length} entries for UUID: ${req.userUuid}`);
     res.json(data.timeEntries);
   } catch (error) {
     console.error('Error getting entries:', error);
@@ -101,6 +91,18 @@ app.get('/api/time-entries/:id', requireUuid, async (req, res) => {
 
 app.post('/api/time-entries', requireUuid, async (req, res) => {
   try {
+    const validation = validateTimeEntry(req.body, false);
+
+    if (!validation.isValid) {
+      return res.status(400).json({
+        error: 'Validation failed',
+        message: 'The provided data is invalid',
+        details: validation.errors
+      });
+    }
+
+    const sanitizedData = sanitizeEntryData(req.body);
+
     const dataFile = getDataFilePath(req.userUuid);
     const data = await readDataFile(dataFile);
 
@@ -110,15 +112,15 @@ app.post('/api/time-entries', requireUuid, async (req, res) => {
 
     const newEntry = {
       id: maxId + 1,
-      ...req.body,
-      status: req.body.status || 'draft'
+      ...sanitizedData,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
     };
 
     data.timeEntries.push(newEntry);
 
     const success = await writeDataFile(dataFile, data);
     if (success) {
-      console.log(`[Server] Created new entry for UUID ${req.userUuid}:`, newEntry);
       res.status(201).json(newEntry);
     } else {
       res.status(500).json({ error: 'Failed to save entry' });
@@ -128,9 +130,20 @@ app.post('/api/time-entries', requireUuid, async (req, res) => {
     res.status(500).json({ error: 'Failed to create entry' });
   }
 });
-
 app.put('/api/time-entries/:id', requireUuid, async (req, res) => {
   try {
+    const validation = validateTimeEntry(req.body, true);
+
+    if (!validation.isValid) {
+      return res.status(400).json({
+        error: 'Validation failed',
+        message: 'The provided data is invalid',
+        details: validation.errors
+      });
+    }
+
+    const sanitizedData = sanitizeEntryData(req.body);
+
     const dataFile = getDataFilePath(req.userUuid);
     const data = await readDataFile(dataFile);
     const entryIndex = data.timeEntries.findIndex(e => e.id === parseInt(req.params.id));
@@ -141,15 +154,15 @@ app.put('/api/time-entries/:id', requireUuid, async (req, res) => {
 
     const updatedEntry = {
       ...data.timeEntries[entryIndex],
-      ...req.body,
-      id: parseInt(req.params.id)
+      ...sanitizedData,
+      id: parseInt(req.params.id),
+      updatedAt: new Date().toISOString()
     };
 
     data.timeEntries[entryIndex] = updatedEntry;
 
     const success = await writeDataFile(dataFile, data);
     if (success) {
-      console.log(`[Server] Updated entry for UUID ${req.userUuid}:`, updatedEntry);
       res.json(updatedEntry);
     } else {
       res.status(500).json({ error: 'Failed to update entry' });
@@ -181,7 +194,7 @@ app.patch('/api/time-entries/:id/send-for-approval', requireUuid, async (req, re
 
     const updatedEntry = {
       ...entry,
-      status: 'pending',
+      status: 'draft',
       submittedForApprovalAt: new Date().toISOString()
     };
 
@@ -189,7 +202,6 @@ app.patch('/api/time-entries/:id/send-for-approval', requireUuid, async (req, re
 
     const success = await writeDataFile(dataFile, data);
     if (success) {
-      console.log(`[Server] Entry sent for approval for UUID ${req.userUuid}:`, updatedEntry);
       res.json(updatedEntry);
     } else {
       res.status(500).json({ error: 'Failed to send entry for approval' });
@@ -214,7 +226,6 @@ app.delete('/api/time-entries/:id', requireUuid, async (req, res) => {
 
     const success = await writeDataFile(dataFile, data);
     if (success) {
-      console.log(`[Server] Deleted entry for UUID ${req.userUuid}:`, deletedEntry);
       res.status(204).send();
     } else {
       res.status(500).json({ error: 'Failed to delete entry' });
@@ -233,27 +244,20 @@ app.get('/debug', async (req, res) => {
   const uuid = req.query.uuid || '001';
 
   try {
-    console.log('[DEBUG] Starting debug check...');
 
     const currentDir = __dirname;
-    console.log(`[DEBUG] Current directory: ${currentDir}`);
 
     const currentFiles = await fs.readdir(currentDir);
-    console.log(`[DEBUG] Files in current dir: ${currentFiles.join(', ')}`);
 
     const dataDir = path.join(currentDir, 'data');
-    console.log(`[DEBUG] Data directory path: ${dataDir}`);
 
     let dataFiles = [];
     try {
       dataFiles = await fs.readdir(dataDir);
-      console.log(`[DEBUG] Files in data dir: ${dataFiles.join(', ')}`);
     } catch (err) {
-      console.log(`[DEBUG] Data directory error: ${err.message}`);
     }
 
     const targetFile = getDataFilePath(uuid);
-    console.log(`[DEBUG] Target file path: ${targetFile}`);
 
     let fileExists = false;
     let fileContent = null;
@@ -261,9 +265,7 @@ app.get('/debug', async (req, res) => {
       await fs.access(targetFile);
       fileExists = true;
       fileContent = await fs.readFile(targetFile, 'utf8');
-      console.log(`[DEBUG] File exists and content length: ${fileContent.length}`);
     } catch (err) {
-      console.log(`[DEBUG] File access error: ${err.message}`);
     }
 
     res.json({
@@ -287,7 +289,6 @@ app.get('/debug', async (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`[Server] File service running on http://localhost:${PORT}`);
-  console.log(`[Server] Data files will be created as: time-entries_[uuid].json`);
 });
 
 module.exports = app;

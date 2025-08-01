@@ -2,7 +2,7 @@ import { ApplicationConfig, provideBrowserGlobalErrorListeners, provideZoneChang
 import { provideRouter } from '@angular/router';
 import { routes } from './app.routes';
 import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
-import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { mockHttpInterceptor } from './interceptors/mock-http.interceptor';
 
 export const appConfig: ApplicationConfig = {
@@ -11,9 +11,6 @@ export const appConfig: ApplicationConfig = {
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     provideClientHydration(withEventReplay()),
-    // provideHttpClient(
-    //   withInterceptors([mockHttpInterceptor])
-    // )
-    provideHttpClient()
+    provideHttpClient(withFetch())
   ]
 };

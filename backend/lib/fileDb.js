@@ -1,5 +1,6 @@
 import fs from 'fs/promises';
 import path from 'path';
+import { validateTimeEntry, sanitizeEntryData } from './validation.js';
 
 const DATA_FILE = path.join(process.cwd(), 'data', 'time-entries.json');
 
@@ -18,7 +19,6 @@ async function readDataFile() {
     const data = await fs.readFile(DATA_FILE, 'utf8');
     return JSON.parse(data);
   } catch (error) {
-    console.log('Creating new data file...');
     const initialData = { timeEntries: [] };
     await writeDataFile(initialData);
     return initialData;
@@ -29,7 +29,6 @@ async function writeDataFile(data) {
   try {
     await ensureDataDir();
     await fs.writeFile(DATA_FILE, JSON.stringify(data, null, 2), 'utf8');
-    console.log('[FileDB] Data written successfully');
     return true;
   } catch (error) {
     console.error('Error writing data file:', error);
@@ -49,6 +48,16 @@ export const fileDb = {
   },
 
   async createEntry(entryData) {
+    const validation = validateTimeEntry(entryData, false);
+
+    if (!validation.isValid) {
+      const error = new Error('Validation failed');
+      error.validationErrors = validation.errors;
+      throw error;
+    }
+
+    const sanitizedData = sanitizeEntryData(entryData);
+
     const data = await readDataFile();
 
     const maxId = data.timeEntries.length > 0
@@ -57,8 +66,9 @@ export const fileDb = {
 
     const newEntry = {
       id: maxId + 1,
-      ...entryData,
-      status: entryData.status || 'draft'
+      ...sanitizedData,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
     };
 
     data.timeEntries.push(newEntry);
@@ -70,6 +80,16 @@ export const fileDb = {
   },
 
   async updateEntry(id, entryData) {
+    const validation = validateTimeEntry(entryData, true);
+
+    if (!validation.isValid) {
+      const error = new Error('Validation failed');
+      error.validationErrors = validation.errors;
+      throw error;
+    }
+
+    const sanitizedData = sanitizeEntryData(entryData);
+
     const data = await readDataFile();
     const entryIndex = data.timeEntries.findIndex(e => e.id === parseInt(id));
 
@@ -77,8 +97,9 @@ export const fileDb = {
 
     const updatedEntry = {
       ...data.timeEntries[entryIndex],
-      ...entryData,
-      id: parseInt(id)
+      ...sanitizedData,
+      id: parseInt(id),
+      updatedAt: new Date().toISOString()
     };
 
     data.timeEntries[entryIndex] = updatedEntry;
@@ -101,5 +122,38 @@ export const fileDb = {
     if (!success) throw new Error('Failed to delete entry');
 
     return deletedEntry;
+  },
+
+  async sendEntryForApproval(id) {
+    const data = await readDataFile();
+    const entryIndex = data.timeEntries.findIndex(e => e.id === parseInt(id));
+
+    if (entryIndex === -1) return null;
+
+    const entry = data.timeEntries[entryIndex];
+
+    if (entry.status !== 'draft') {
+      const error = new Error('Only draft entries can be sent for approval');
+      error.currentStatus = entry.status;
+      throw error;
+    }
+
+    if (!entry.date || !entry.startTime) {
+      throw new Error('Entry must have date and start time to be sent for approval');
+    }
+
+    const updatedEntry = {
+      ...entry,
+      status: 'draft',
+      submittedForApprovalAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
+    data.timeEntries[entryIndex] = updatedEntry;
+
+    const success = await writeDataFile(data);
+    if (!success) throw new Error('Failed to send entry for approval');
+
+    return updatedEntry;
   }
 };

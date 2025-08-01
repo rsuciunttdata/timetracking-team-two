@@ -177,6 +177,20 @@
       "rejectionMessage": "",
       "description": "",
       "total": "1h 0m"
+    },
+    {
+      "id": 16,
+      "date": "2025-07-01",
+      "project": "Test Project",
+      "startTime": "09:00",
+      "endTime": "10:00",
+      "break": "10h",
+      "status": "draft",
+      "description": "",
+      "rejectionMessage": "",
+      "total": "0h 0m",
+      "createdAt": "2025-07-31T16:56:11.659Z",
+      "updatedAt": "2025-07-31T16:56:11.659Z"
     }
   ]
 }
