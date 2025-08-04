@@ -49,6 +49,19 @@ export class EntryFormDialogComponent {
   submitButtonText = 'Add Entry';
   maxDate: string;
 
+  fieldTouched = {
+  date: false,
+  project: false,
+  startTime: false,
+  endTime: false,
+  break: false,
+  status: false,
+  rejectionMessage: false,
+  description: false
+  };
+
+
+
   private refreshService = inject(EntryRefreshService);
 
 
@@ -256,4 +269,25 @@ export class EntryFormDialogComponent {
       panelClass: [`snackbar-${type}`]
     });
   }
+
+  isFieldInvalid(field: keyof typeof this.entry): boolean {
+  return (
+    !this.entry[field] &&
+    this.fieldTouched[field]
+  );
+}
+
+isBreakInvalid(): boolean {
+  return !this.isValidBreakFormat() && this.fieldTouched.break;
+}
+
+
+
+ markAllFieldsTouched() {
+  (Object.keys(this.fieldTouched) as Array<keyof typeof this.fieldTouched>).forEach(key => {
+    this.fieldTouched[key] = true;
+  });
+}
+
+
 }
