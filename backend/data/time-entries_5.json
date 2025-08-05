@@ -93,6 +93,34 @@
       "total": "2h 30m",
       "createdAt": "2025-07-31T17:06:00.554Z",
       "updatedAt": "2025-07-31T17:06:00.554Z"
+    },
+    {
+      "id": 10,
+      "date": "2025-08-04",
+      "project": "Test Project",
+      "startTime": "11:00",
+      "endTime": "14:00",
+      "break": "10h",
+      "status": "draft",
+      "description": "",
+      "rejectionMessage": "",
+      "total": "0h 0m",
+      "createdAt": "2025-08-04T09:13:45.050Z",
+      "updatedAt": "2025-08-04T09:13:45.050Z"
+    },
+    {
+      "id": 11,
+      "date": "2025-08-03",
+      "project": "Test Project",
+      "startTime": "11:00",
+      "endTime": "15:00",
+      "break": "10h",
+      "status": "draft",
+      "description": "",
+      "rejectionMessage": "",
+      "total": "0h 0m",
+      "createdAt": "2025-08-04T11:49:09.090Z",
+      "updatedAt": "2025-08-04T11:49:28.803Z"
     }
   ]
 }
