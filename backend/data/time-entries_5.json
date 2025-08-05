@@ -26,30 +26,6 @@
       "submittedForApprovalAt": "2025-07-24T14:49:09.679Z"
     },
     {
-      "id": 3,
-      "date": "2025-07-24",
-      "project": "",
-      "startTime": "15:37",
-      "endTime": "21:37",
-      "break": "1h",
-      "status": "draft",
-      "rejectionMessage": "",
-      "description": "",
-      "total": "5h 0m"
-    },
-    {
-      "id": 4,
-      "date": "2025-07-29",
-      "project": "",
-      "startTime": "10:07",
-      "endTime": "11:07",
-      "break": "5m",
-      "status": "draft",
-      "rejectionMessage": "",
-      "description": "",
-      "total": "0h 55m"
-    },
-    {
       "id": 5,
       "date": "2025-07-25",
       "project": "",
@@ -61,6 +37,62 @@
       "description": "",
       "total": "1h 55m",
       "submittedForApprovalAt": "2025-07-31T07:26:53.459Z"
+    },
+    {
+      "id": 6,
+      "date": "2025-07-01",
+      "project": "Test Project",
+      "startTime": "09:00",
+      "endTime": "10:00",
+      "break": "10h",
+      "status": "draft",
+      "description": "",
+      "rejectionMessage": "",
+      "total": "0h 0m",
+      "createdAt": "2025-07-31T16:56:24.813Z",
+      "updatedAt": "2025-07-31T16:56:24.813Z"
+    },
+    {
+      "id": 7,
+      "date": "2025-07-01",
+      "project": "Test Project",
+      "startTime": "09:00",
+      "endTime": "8:00",
+      "break": "10h",
+      "status": "draft",
+      "description": "",
+      "rejectionMessage": "",
+      "total": "0h 0m",
+      "createdAt": "2025-07-31T16:57:27.349Z",
+      "updatedAt": "2025-07-31T16:57:27.349Z"
+    },
+    {
+      "id": 8,
+      "date": "2025-07-03",
+      "project": "Test Project",
+      "startTime": "09:00",
+      "endTime": "10:00",
+      "break": "10h",
+      "status": "draft",
+      "description": "",
+      "rejectionMessage": "",
+      "total": "0h 0m",
+      "createdAt": "2025-07-31T16:58:21.560Z",
+      "updatedAt": "2025-07-31T16:58:21.560Z"
+    },
+    {
+      "id": 9,
+      "date": "2025-07-31",
+      "project": "",
+      "startTime": "20:05",
+      "endTime": "23:05",
+      "break": "30m",
+      "status": "draft",
+      "description": "",
+      "rejectionMessage": "",
+      "total": "2h 30m",
+      "createdAt": "2025-07-31T17:06:00.554Z",
+      "updatedAt": "2025-07-31T17:06:00.554Z"
     }
   ]
 }

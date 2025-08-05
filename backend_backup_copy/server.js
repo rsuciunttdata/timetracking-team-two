@@ -23,7 +23,6 @@ async function readDataFile() {
 async function writeDataFile(data) {
   try {
     await fs.writeFile(DATA_FILE, JSON.stringify(data, null, 2), 'utf8');
-    console.log('[Server] Data written to file successfully');
     return true;
   } catch (error) {
     console.error('Error writing data file:', error);
@@ -34,7 +33,6 @@ async function writeDataFile(data) {
 app.get('/api/time-entries', async (req, res) => {
   try {
     const data = await readDataFile();
-    console.log(`[Server] Retrieved ${data.timeEntries.length} entries`);
     res.json(data.timeEntries);
   } catch (error) {
     console.error('Error getting entries:', error);
@@ -76,7 +74,6 @@ app.post('/api/time-entries', async (req, res) => {
 
     const success = await writeDataFile(data);
     if (success) {
-      console.log('[Server] Created new entry:', newEntry);
       res.status(201).json(newEntry);
     } else {
       res.status(500).json({ error: 'Failed to save entry' });
@@ -106,7 +103,6 @@ app.put('/api/time-entries/:id', async (req, res) => {
 
     const success = await writeDataFile(data);
     if (success) {
-      console.log('[Server] Updated entry:', updatedEntry);
       res.json(updatedEntry);
     } else {
       res.status(500).json({ error: 'Failed to update entry' });
@@ -137,7 +133,7 @@ app.patch('/api/time-entries/:id/send-for-approval', async (req, res) => {
 
     const updatedEntry = {
       ...entry,
-      status: 'pending',
+      status: 'draft',
       submittedForApprovalAt: new Date().toISOString()
     };
 
@@ -145,7 +141,6 @@ app.patch('/api/time-entries/:id/send-for-approval', async (req, res) => {
 
     const success = await writeDataFile(data);
     if (success) {
-      console.log('[Server] Entry sent for approval:', updatedEntry);
       res.json(updatedEntry);
     } else {
       res.status(500).json({ error: 'Failed to send entry for approval' });
@@ -169,7 +164,6 @@ app.delete('/api/time-entries/:id', async (req, res) => {
 
     const success = await writeDataFile(data);
     if (success) {
-      console.log('[Server] Deleted entry:', deletedEntry);
       res.status(204).send();
     } else {
       res.status(500).json({ error: 'Failed to delete entry' });
@@ -186,7 +180,6 @@ app.get('/health', (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`[Server] File service running on http://localhost:${PORT}`);
-  console.log(`[Server] Data file: ${DATA_FILE}`);
 });
 
 module.exports = app;

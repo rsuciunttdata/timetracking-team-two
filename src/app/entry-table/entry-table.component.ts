@@ -44,46 +44,35 @@ export class EntryTableComponent implements OnInit, AfterViewInit {
   pageSize = 10;
   isDialogOpen = false;
 
-  // === SIGNALS ===
-  
-  // Core data signals
   entriesSignal = signal<TimeEntry[]>([]);
   isLoadingSignal = signal<boolean>(false);
   errorSignal = signal<string | null>(null);
 
-  // Filter signals
   filtersSignal = signal({
     dateFrom: '',
     dateTo: '',
     statuses: [] as string[]
   });
 
-  // Pagination signals
   currentPageSignal = signal<number>(0);
   pageSizeSignal = signal<number>(10);
 
-  // === COMPUTED SIGNALS ===
-
-  // Filtered entries based on current filters
   filteredEntriesSignal = computed(() => {
     const entries = this.entriesSignal();
     const filters = this.filtersSignal();
-    
+
     let filtered = [...entries];
 
-    // Date from filter
     if (filters.dateFrom) {
       const dateFrom = new Date(filters.dateFrom);
       filtered = filtered.filter(entry => new Date(entry.date) >= dateFrom);
     }
 
-    // Date to filter
     if (filters.dateTo) {
       const dateTo = new Date(filters.dateTo);
       filtered = filtered.filter(entry => new Date(entry.date) <= dateTo);
     }
 
-    // Status filters
     if (filters.statuses.length > 0) {
       filtered = filtered.filter(entry => filters.statuses.includes(entry.status));
     }
@@ -91,39 +80,33 @@ export class EntryTableComponent implements OnInit, AfterViewInit {
     return filtered;
   });
 
-  // Paginated entries for display
   paginatedEntriesSignal = computed(() => {
     const filtered = this.filteredEntriesSignal();
     const currentPage = this.currentPageSignal();
     const pageSize = this.pageSizeSignal();
-    
+
     const startIndex = currentPage * pageSize;
     const endIndex = startIndex + pageSize;
-    
+
     return filtered.slice(startIndex, endIndex);
   });
 
-  // Total pages for pagination
   totalPagesSignal = computed(() => {
     const filtered = this.filteredEntriesSignal();
     const pageSize = this.pageSizeSignal();
     return Math.ceil(filtered.length / pageSize);
   });
 
-  // Can go to next page
   canGoNextSignal = computed(() => {
     const currentPage = this.currentPageSignal();
     const totalPages = this.totalPagesSignal();
     return currentPage < totalPages - 1;
   });
 
-  // Can go to previous page
   canGoPreviousSignal = computed(() => {
     return this.currentPageSignal() > 0;
   });
 
-  // === LEGACY COMPUTED PROPERTIES FOR TEMPLATE COMPATIBILITY ===
-  
   get filters() {
     return this.filtersSignal();
   }
@@ -163,7 +146,6 @@ export class EntryTableComponent implements OnInit, AfterViewInit {
       this.initializeUser();
     }
 
-    // Effect for refresh signal
     effect(() => {
       this.refreshService.refreshSignal();
       console.log(`[instance ${this.instanceId}] refreshSignal triggered`);
@@ -172,16 +154,14 @@ export class EntryTableComponent implements OnInit, AfterViewInit {
       }
     });
 
-    // Effect to update dataSource when paginated entries change
     effect(() => {
       const paginatedEntries = this.paginatedEntriesSignal();
       this.dataSource.data = paginatedEntries;
     });
 
-    // Effect to reset page when filters change
     effect(() => {
-      this.filteredEntriesSignal(); // Track filtered entries
-      this.currentPageSignal.set(0); // Reset to first page when filters change
+      this.filteredEntriesSignal();
+      this.currentPageSignal.set(0);
     });
   }
 
@@ -204,8 +184,6 @@ export class EntryTableComponent implements OnInit, AfterViewInit {
     }
   }
 
-  // === DATA LOADING METHODS ===
-
   loadTimeEntries() {
     if (!isPlatformBrowser(this.platformId)) return;
 
@@ -227,11 +205,7 @@ export class EntryTableComponent implements OnInit, AfterViewInit {
     });
   }
 
-  // === FILTER METHODS ===
-
   onFilterChange() {
-    // Filters are automatically applied through computed signals
-    // No manual applyFilters call needed!
   }
 
   updateFilters(updates: Partial<typeof this.filters>) {
@@ -252,17 +226,15 @@ export class EntryTableComponent implements OnInit, AfterViewInit {
     const currentFilters = this.filtersSignal();
     const currentStatuses = [...currentFilters.statuses];
     const index = currentStatuses.indexOf(value);
-    
+
     if (index === -1) {
       currentStatuses.push(value);
     } else {
       currentStatuses.splice(index, 1);
     }
-    
+
     this.updateFilters({ statuses: currentStatuses });
   }
-
-  // === PAGINATION METHODS ===
 
   nextPage() {
     if (this.canGoNextSignal()) {
@@ -276,13 +248,9 @@ export class EntryTableComponent implements OnInit, AfterViewInit {
     }
   }
 
-  // === LEGACY METHODS FOR TEMPLATE COMPATIBILITY ===
-
   getFilteredEntries(): TimeEntry[] {
     return this.filteredEntriesSignal();
   }
-
-  // === STATUS HELPER METHODS ===
 
   getStatusIcon(status: string): string {
     switch (status) {
@@ -324,8 +292,6 @@ export class EntryTableComponent implements OnInit, AfterViewInit {
     }
   }
 
-  // === ENTRY PERMISSION METHODS ===
-
   canEditEntry(entry: TimeEntry): boolean {
     return entry.status === 'draft' || entry.status === 'rejected';
   }
@@ -333,8 +299,6 @@ export class EntryTableComponent implements OnInit, AfterViewInit {
   canSendForApproval(entry: TimeEntry): boolean {
     return entry.status === 'draft';
   }
-
-  // === CRUD OPERATIONS ===
 
   addEntry() {
     if (this.isDialogOpen) return;
@@ -352,10 +316,9 @@ export class EntryTableComponent implements OnInit, AfterViewInit {
 
       if (newEntry) {
         this.isLoadingSignal.set(true);
-        this.timeEntryService.createTimeEntry(newEntry).subscribe({
+        this.timeEntryService.createTimeEntry(newEntry, this.userUuid).subscribe({
           next: (createdEntry) => {
-            // Update entries signal with new entry
-            this.entriesSignal.update(entries => [...entries, createdEntry]);
+            this.entriesSignal.update(entries => [...entries, createdEntry as TimeEntry]);
             this.showSnackBar('Entry added successfully!', 'success');
             this.isLoadingSignal.set(false);
           },
@@ -394,8 +357,7 @@ export class EntryTableComponent implements OnInit, AfterViewInit {
 
         this.timeEntryService.updateTimeEntry(entry.id, updatedEntry).subscribe({
           next: () => {
-            // Update entries signal with modified entry
-            this.entriesSignal.update(entries => 
+            this.entriesSignal.update(entries =>
               entries.map(e => e.id === entry.id ? updatedEntry : e)
             );
             this.showSnackBar('Entry updated successfully!', 'success');
@@ -436,8 +398,7 @@ export class EntryTableComponent implements OnInit, AfterViewInit {
 
         this.timeEntryService.deleteTimeEntry(entry.id).subscribe({
           next: () => {
-            // Remove entry from entries signal
-            this.entriesSignal.update(entries => 
+            this.entriesSignal.update(entries =>
               entries.filter(e => e.id !== entry.id)
             );
             this.showSnackBar('Entry deleted successfully!', 'success');
