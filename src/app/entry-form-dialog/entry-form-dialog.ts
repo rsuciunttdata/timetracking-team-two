@@ -39,7 +39,7 @@ export class EntryFormDialogComponent {
     startTime: '',
     endTime: '',
     break: '',
-    status: 'pending' as 'draft' | 'pending' | 'accepted' | 'rejected',
+    status: 'draft' as 'draft' | 'pending' | 'accepted' | 'rejected',
     rejectionMessage: '',
     description: ''
   };
@@ -64,7 +64,6 @@ export class EntryFormDialogComponent {
 
   private refreshService = inject(EntryRefreshService);
 
-
   constructor(
     public dialogRef: MatDialogRef<EntryFormDialogComponent>,
     private snackBar: MatSnackBar,
@@ -73,7 +72,7 @@ export class EntryFormDialogComponent {
   ) {
     this.maxDate = new Date().toISOString().split('T')[0];
 
-    if (data && data.entry) {
+    if (data?.entry) {
       this.isEditMode = true;
       this.dialogTitle = 'Edit Entry';
       this.submitButtonText = 'Update Entry';
@@ -88,139 +87,51 @@ export class EntryFormDialogComponent {
         rejectionMessage: data.entry.rejectionMessage || '',
         description: data.entry.description || ''
       };
-    } else {
-      this.isEditMode = false;
-      this.dialogTitle = 'Add New Entry';
-      this.submitButtonText = 'Add Entry';
-
-      this.entry.status = 'draft';
     }
   }
 
   submit() {
-    if (!this.entry.date || !this.entry.startTime || !this.entry.endTime || !this.entry.break) {
-      this.showSnackBar('Please fill in all required fields (Date, Start Time, End Time, Break Duration)', 'error');
+    if (!this.entry.date || !this.entry.startTime) {
+      this.showSnackBar('Please fill in all required fields (Date, Project, Start Time, End Time)', 'error');
       return;
     }
 
-    if (!this.isValidDate()) {
-      this.showSnackBar('Date cannot be in the future. Please select today or a past date.', 'error');
-      return;
-    }
-
-    if (this.entry.startTime >= this.entry.endTime) {
-      this.showSnackBar('End time must be after start time', 'error');
-      return;
-    }
-
-    if (!this.isValidBreakFormat()) {
-      this.showSnackBar('Break format must be like "1h 30m", "2h", or "45m" (hours: 0-8, minutes: 0-59)', 'error');
-      return;
-    }
-
-    if (!this.isBreakTimeLessThanWorkedTime()) {
-      this.showSnackBar('Break duration cannot be equal to or greater than the total worked time', 'error');
+    const uuid = localStorage.getItem('uuid');
+    if (!uuid) {
+      this.showSnackBar('User ID is missing. Please log in again.', 'error');
       return;
     }
 
     const total = this.calculateTotal();
+    const payload = {
+      ...this.entry,
+      total: total,
+      description: this.entry.description || ''
+    };
 
     if (this.isEditMode) {
-      const updateData = {
-        ...this.entry,
-        id: this.data.entry!.id,
-        total: total,
-        description: this.entry.description || ''
-      };
-
-      this.timeEntryService.updateTimeEntry(this.data.entry!.id, updateData).subscribe({
+      this.timeEntryService.updateTimeEntry(this.data.entry.id, payload).subscribe({
         next: () => {
           this.showSnackBar('Entry updated successfully!', 'success');
           this.refreshService.triggerRefresh();
           this.dialogRef.close();
         },
-        error: (error) => {
-          console.error('Error updating entry:', error);
-          this.showSnackBar('Failed to update entry. Please try again.', 'error');
-        }
+        error: (error) => this.handleBackendError(error)
       });
     } else {
-      const createData = {
-        ...this.entry,
-        total: total,
-        description: this.entry.description || ''
-      };
-
-      this.timeEntryService.createTimeEntry(createData).subscribe({
+      this.timeEntryService.createTimeEntry(payload, uuid).subscribe({
         next: () => {
           this.showSnackBar('Entry created successfully!', 'success');
           this.refreshService.triggerRefresh();
           this.dialogRef.close();
         },
-        error: (error) => {
-          console.error('Error creating entry:', error);
-          this.showSnackBar('Failed to create entry. Please try again.', 'error');
-        }
+        error: (error) => this.handleBackendError(error)
       });
     }
   }
 
   cancel() {
     this.dialogRef.close();
-  }
-
-  private isValidDate(): boolean {
-    if (!this.entry.date) return false;
-
-    const selectedDate = new Date(this.entry.date);
-    const today = new Date();
-
-    today.setHours(0, 0, 0, 0);
-    selectedDate.setHours(0, 0, 0, 0);
-
-    return selectedDate <= today;
-  }
-
-  private isValidBreakFormat(): boolean {
-    if (!this.entry.break || this.entry.break.trim() === '') {
-      return false;
-    }
-
-    const breakTime = this.entry.break.trim();
-    const fullFormatRegex = /^(\d+)h\s+(\d+)m$/;
-    const hoursOnlyRegex = /^(\d+)h$/;
-    const minutesOnlyRegex = /^(\d+)m$/;
-
-    let hours = 0;
-    let minutes = 0;
-
-    if (fullFormatRegex.test(breakTime)) {
-      const match = breakTime.match(fullFormatRegex);
-      hours = parseInt(match![1]);
-      minutes = parseInt(match![2]);
-    } else if (hoursOnlyRegex.test(breakTime)) {
-      const match = breakTime.match(hoursOnlyRegex);
-      hours = parseInt(match![1]);
-    } else if (minutesOnlyRegex.test(breakTime)) {
-      const match = breakTime.match(minutesOnlyRegex);
-      minutes = parseInt(match![1]);
-    } else {
-      return false;
-    }
-
-    return hours >= 0 && hours <= 8 && minutes >= 0 && minutes <= 59;
-  }
-
-  private isBreakTimeLessThanWorkedTime(): boolean {
-    const [startHour, startMinute] = this.entry.startTime.split(':').map(Number);
-    const [endHour, endMinute] = this.entry.endTime.split(':').map(Number);
-
-    const startTotalMinutes = startHour * 60 + startMinute;
-    const endTotalMinutes = endHour * 60 + endMinute;
-    const totalWorkedMinutes = endTotalMinutes - startTotalMinutes;
-
-    const breakMinutes = this.parseBreakTime(this.entry.break);
-    return breakMinutes < totalWorkedMinutes;
   }
 
   private calculateTotal(): string {
@@ -239,7 +150,7 @@ export class EntryFormDialogComponent {
   }
 
   private parseBreakTime(breakTime: string): number {
-    const trimmed = breakTime.trim();
+    const trimmed = (breakTime || '').trim();
     const fullFormatRegex = /^(\d+)h\s+(\d+)m$/;
     const hoursOnlyRegex = /^(\d+)h$/;
     const minutesOnlyRegex = /^(\d+)m$/;

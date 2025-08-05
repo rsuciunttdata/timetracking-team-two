@@ -1,0 +1,16 @@
+{
+  "timeEntries": [
+    {
+      "id": 1,
+      "date": "2025-07-31",
+      "project": "",
+      "startTime": "16:09",
+      "endTime": "21:14",
+      "break": "45m",
+      "status": "draft",
+      "rejectionMessage": "",
+      "description": "",
+      "total": "4h 20m"
+    }
+  ]
+}

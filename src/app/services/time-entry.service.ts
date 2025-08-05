@@ -16,7 +16,7 @@ export class TimeEntryService {
   constructor(
     private http: HttpClient,
     @Inject(PLATFORM_ID) private platformId: Object
-  ) {}
+  ) { }
 
   setUserUuid(uuid: string): void {
     this.currentUuid = uuid;
@@ -29,14 +29,14 @@ export class TimeEntryService {
     }
 
     if (!isPlatformBrowser(this.platformId) || typeof localStorage === 'undefined') {
-      console.error('❌ [Service] Cannot access localStorage in server environment');
+      console.error('[Service] Cannot access localStorage in server environment');
       throw new Error('Cannot access localStorage in server environment');
     }
 
     const uuid = localStorage.getItem('uuid');
 
     if (!uuid) {
-      console.error('❌ [Service] No UUID found in localStorage');
+      console.error('[Service] No UUID found in localStorage');
       throw new Error('User UUID not found. Please ensure user is logged in.');
     }
     return uuid;
@@ -63,7 +63,7 @@ export class TimeEntryService {
       tap(entries => {
       }),
       catchError(error => {
-        console.error('❌ [Service] API Error:', error);
+        console.error('[Service] API Error:', error);
         return this.handleError(error);
       })
     );
@@ -78,13 +78,17 @@ export class TimeEntryService {
     );
   }
 
-  createTimeEntry(entry: Omit<TimeEntry, 'id'>): Observable<TimeEntry> {
-    return this.http.post<TimeEntry>(this.apiUrl, entry, {
-      headers: this.getHeaders(),
-      params: this.getHttpParams()
-    }).pipe(
-      catchError(this.handleError)
-    );
+  // createTimeEntry(entry: Omit<TimeEntry, 'id'>): Observable<TimeEntry> {
+  //   return this.http.post<TimeEntry>(this.apiUrl, entry, {
+  //     headers: this.getHeaders(),
+  //     params: this.getHttpParams()
+  //   }).pipe(
+  //     catchError(this.handleError)
+  //   );
+  // }
+
+  createTimeEntry(data: any, uuid: string) {
+    return this.http.post(`${this.apiUrl}?uuid=${uuid}`, data);
   }
 
   updateTimeEntry(id: number, entry: Partial<TimeEntry>): Observable<TimeEntry> {
