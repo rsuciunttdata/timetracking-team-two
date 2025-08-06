@@ -1,235 +1,243 @@
-<div class="flex min-h-screen">
-  <!-- Left Sidebar - Filters -->
-  <div class="w-80 p-4">
-    <div
-         class="bg-white rounded-2xl shadow-xl border border-gray-200 flex flex-col h-full">
-      <!-- Sidebar Header -->
-      <div
-           class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-t-2xl">
-        <div class="flex items-center space-x-3">
-          <div
-               class="w-8 h-8 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
-            <svg class="w-4 h-4 text-white" fill="none"
-                 stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round"
-                    stroke-linejoin="round" stroke-width="2"
-                    d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2H3V4zm0 4h18v2H3V8zm0 4h12v2H3v-2zm0 4h6v2H3v-2z" />
-            </svg>
-          </div>
-          <div>
-            <h3 class="text-lg font-semibold text-gray-900">
-              Filters</h3>
-            <p class="text-sm text-gray-600">Refine your
-              search</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Filter Controls -->
-      <div
-           class="flex-1 px-6 py-6 space-y-6 overflow-y-auto">
-        <!-- Date Range Filter -->
-        <div class="space-y-4">
-          <h4
-              class="text-sm font-semibold text-gray-700 uppercase tracking-wide flex items-center">
-            <svg class="w-4 h-4 mr-2 text-blue-600"
-                 fill="none" stroke="currentColor"
-                 viewBox="0 0 24 24">
-              <path stroke-linecap="round"
-                    stroke-linejoin="round" stroke-width="2"
-                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-            Date Range
-          </h4>
-
-          <!-- From Date -->
-          <div class="space-y-2">
-            <label
-                   class="block text-xs font-medium text-gray-600 uppercase tracking-wider">From</label>
-            <div class="relative">
-              <input type="date"
-                     [value]="filtersSignal().dateFrom"
-                     (input)="updateFilters({ dateFrom: $any($event.target).value })"
-                     class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-sm" />
-            </div>
-          </div>
-
-          <!-- To Date -->
-          <div class="space-y-2">
-            <label
-                   class="block text-xs font-medium text-gray-600 uppercase tracking-wider">To</label>
-            <div class="relative">
-              <input type="date"
-                     [value]="filtersSignal().dateTo"
-                     (input)="updateFilters({ dateTo: $any($event.target).value })"
-                     class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-sm" />
-            </div>
-          </div>
-        </div>
-
-        <!-- Status Filter -->
-        <div class="space-y-4">
-          <h4
-              class="text-sm font-semibold text-gray-700 uppercase tracking-wide flex items-center">
-            <svg class="w-4 h-4 mr-2 text-green-600"
-                 fill="none" stroke="currentColor"
-                 viewBox="0 0 24 24">
-              <path stroke-linecap="round"
-                    stroke-linejoin="round" stroke-width="2"
-                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            Status
-          </h4>
-
-          <div class="space-y-3">
-            <div *ngFor="let status of statusOptions"
-                 class="flex items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
-                 (click)="toggleStatus(status.value)">
-              <input type="checkbox"
-                     [checked]="filtersSignal().statuses.includes(status.value)"
-                     (click)="$event.stopPropagation()"
-                     (change)="toggleStatus(status.value)"
-                     class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2" />
-              <div class="ml-3 flex items-center">
-                <div class="w-2 h-2 rounded-full mr-2"
-                     [ngClass]="getStatusIconColor(status.value)">
-                </div>
-                <span
-                      class="text-sm font-medium text-gray-700">{{
-                  status.label }}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Sidebar Footer -->
-      <div
-           class="px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-2xl">
-        <div class="flex items-center justify-between mb-3">
-          <div class="text-sm text-gray-600">
-            <span class="font-semibold text-blue-600">{{
-              paginatedEntriesSignal().length }}</span>
-            of
-            <span class="font-semibold text-gray-800">{{
-              filteredEntriesSignal().length }}</span>
-            filtered
-            <span class="text-gray-500">({{
-              entriesSignal().length }} total)</span>
-          </div>
-        </div>
-
-        <button (click)="clearFilters()"
-                class="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 flex items-center justify-center space-x-2">
-          <svg class="w-4 h-4" fill="none"
+<div class="flex flex-col min-h-screen">
+  <!-- Unified Header - spans full width -->
+  <div
+       class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl shadow-sm border-b border-gray-200 px-6 py-4 m-4 mb-0">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div
+             class="w-10 h-10 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center">
+          <svg class="w-5 h-5 text-white" fill="none"
                stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round"
                   stroke-linejoin="round" stroke-width="2"
-                  d="M6 18L18 6M6 6l12 12" />
+                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-          <span>Clear All Filters</span>
+        </div>
+        <div>
+          <h1 class="text-2xl font-bold text-gray-900">Time
+            Entries</h1>
+          <p class="text-sm text-gray-600">Recent time
+            tracking entries</p>
+        </div>
+      </div>
+      <div class="flex items-center space-x-3">
+        <!-- Refresh Button -->
+        <button (click)="refreshData()"
+                [disabled]="isLoadingSignal()"
+                class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 px-4 py-3 rounded-xl font-semibold shadow-sm hover:shadow-md transition-all duration-200 flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed">
+          <svg class="w-5 h-5"
+               [class.animate-spin]="isLoadingSignal()"
+               fill="none" stroke="currentColor"
+               viewBox="0 0 24 24">
+            <path stroke-linecap="round"
+                  stroke-linejoin="round" stroke-width="2"
+                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          <span>Refresh</span>
+        </button>
+
+        <!-- Add Entry Button -->
+        <button (click)="addEntry()"
+                [disabled]="isLoadingSignal()"
+                class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed">
+          <svg class="w-5 h-5" fill="none"
+               stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round"
+                  stroke-linejoin="round" stroke-width="2"
+                  d="M12 4v16m8-8H4" />
+          </svg>
+          <span>Add Entry</span>
         </button>
       </div>
     </div>
   </div>
 
-  <!-- Main Content Area -->
-  <div class="flex-1 flex flex-col">
-    <!-- Header -->
-    <div
-         class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl shadow-sm border-b border-gray-200 px-6 py-4">
-      <div class="flex items-center justify-between">
-        <div class="flex items-center space-x-3">
+  <!-- Content Area - Filters and Table side by side with same height -->
+  <div class="flex flex-1 p-4 pt-4 space-x-4">
+    <!-- Left Sidebar - Filters -->
+    <div class="w-80">
+      <div
+           class="bg-white rounded-2xl shadow-xl border border-gray-200 flex flex-col h-full">
+        <!-- Sidebar Header -->
+        <div
+             class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-t-2xl">
+          <div class="flex items-center space-x-3">
+            <div
+                 class="w-8 h-8 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
+              <svg class="w-4 h-4 text-white" fill="none"
+                   stroke="currentColor"
+                   viewBox="0 0 24 24">
+                <path stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2H3V4zm0 4h18v2H3V8zm0 4h12v2H3v-2zm0 4h6v2H3v-2z" />
+              </svg>
+            </div>
+            <div>
+              <h3
+                  class="text-lg font-semibold text-gray-900">
+                Filters</h3>
+              <p class="text-sm text-gray-600">Refine your
+                search</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Filter Controls -->
+        <div
+             class="flex-1 px-6 py-6 space-y-6 overflow-y-auto">
+          <!-- Date Range Filter -->
+          <div class="space-y-4">
+            <h4
+                class="text-sm font-semibold text-gray-700 uppercase tracking-wide flex items-center">
+              <svg class="w-4 h-4 mr-2 text-blue-600"
+                   fill="none" stroke="currentColor"
+                   viewBox="0 0 24 24">
+                <path stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              Date Range
+            </h4>
+
+            <!-- From Date -->
+            <div class="space-y-2">
+              <label
+                     class="block text-xs font-medium text-gray-600 uppercase tracking-wider">From</label>
+              <div class="relative">
+                <input type="date"
+                       [value]="filtersSignal().dateFrom"
+                       (input)="updateFilters({ dateFrom: $any($event.target).value })"
+                       class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-sm" />
+              </div>
+            </div>
+
+            <!-- To Date -->
+            <div class="space-y-2">
+              <label
+                     class="block text-xs font-medium text-gray-600 uppercase tracking-wider">To</label>
+              <div class="relative">
+                <input type="date"
+                       [value]="filtersSignal().dateTo"
+                       (input)="updateFilters({ dateTo: $any($event.target).value })"
+                       class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-sm" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Status Filter -->
+          <div class="space-y-4">
+            <h4
+                class="text-sm font-semibold text-gray-700 uppercase tracking-wide flex items-center">
+              <svg class="w-4 h-4 mr-2 text-green-600"
+                   fill="none" stroke="currentColor"
+                   viewBox="0 0 24 24">
+                <path stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              Status
+            </h4>
+
+            <div class="space-y-3">
+              <div *ngFor="let status of statusOptions"
+                   class="flex items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+                   (click)="toggleStatus(status.value)">
+                <input type="checkbox"
+                       [checked]="filtersSignal().statuses.includes(status.value)"
+                       (click)="$event.stopPropagation()"
+                       (change)="toggleStatus(status.value)"
+                       class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2" />
+                <div class="ml-3 flex items-center">
+                  <div class="w-2 h-2 rounded-full mr-2"
+                       [ngClass]="getStatusIconColor(status.value)">
+                  </div>
+                  <span
+                        class="text-sm font-medium text-gray-700">{{
+                    status.label }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sidebar Footer -->
+        <div
+             class="px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-2xl">
           <div
-               class="w-10 h-10 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center">
-            <svg class="w-5 h-5 text-white" fill="none"
+               class="flex items-center justify-between mb-3">
+            <div class="text-sm text-gray-600">
+              <span class="font-semibold text-blue-600">{{
+                paginatedEntriesSignal().length }}</span>
+              of
+              <span class="font-semibold text-gray-800">{{
+                filteredEntriesSignal().length }}</span>
+              filtered
+              <span class="text-gray-500">({{
+                entriesSignal().length }} total)</span>
+            </div>
+          </div>
+
+          <button (click)="clearFilters()"
+                  class="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 flex items-center justify-center space-x-2">
+            <svg class="w-4 h-4" fill="none"
                  stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round"
                     stroke-linejoin="round" stroke-width="2"
-                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    d="M6 18L18 6M6 6l12 12" />
+            </svg>
+            <span>Clear All Filters</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content Area - Table -->
+    <div class="flex-1">
+      <!-- Loading State -->
+      <div *ngIf="isLoadingSignal()"
+           class="flex items-center justify-center h-full">
+        <div class="text-center">
+          <div
+               class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4">
+          </div>
+          <p class="text-gray-600 font-medium">Loading
+            entries...</p>
+        </div>
+      </div>
+
+      <!-- Error State -->
+      <div *ngIf="errorSignal() && !isLoadingSignal()"
+           class="flex items-center justify-center h-full">
+        <div
+             class="text-center bg-red-50 border border-red-200 rounded-xl p-8">
+          <div
+               class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4 mx-auto">
+            <svg class="w-8 h-8 text-red-600" fill="none"
+                 stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round"
+                    stroke-linejoin="round" stroke-width="2"
+                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
-          <div>
-            <h1 class="text-2xl font-bold text-gray-900">
-              Time Entries</h1>
-            <p class="text-sm text-gray-600">Recent time
-              tracking entries</p>
-          </div>
-        </div>
-        <div class="flex items-center space-x-3">
-          <!-- Refresh Button -->
+          <h3
+              class="text-lg font-semibold text-red-900 mb-2">
+            Error Loading Data</h3>
+          <p class="text-red-700 mb-4">{{ errorSignal() }}
+          </p>
           <button (click)="refreshData()"
-                  [disabled]="isLoadingSignal()"
-                  class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 px-4 py-3 rounded-xl font-semibold shadow-sm hover:shadow-md transition-all duration-200 flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed">
-            <svg class="w-5 h-5"
-                 [class.animate-spin]="isLoadingSignal()"
-                 fill="none" stroke="currentColor"
-                 viewBox="0 0 24 24">
-              <path stroke-linecap="round"
-                    stroke-linejoin="round" stroke-width="2"
-                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-            </svg>
-            <span>Refresh</span>
-          </button>
-
-          <!-- Add Entry Button -->
-          <button (click)="addEntry()"
-                  [disabled]="isLoadingSignal()"
-                  class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed">
-            <svg class="w-5 h-5" fill="none"
-                 stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round"
-                    stroke-linejoin="round" stroke-width="2"
-                    d="M12 4v16m8-8H4" />
-            </svg>
-            <span>Add Entry</span>
+                  class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+            Try Again
           </button>
         </div>
       </div>
-    </div>
 
-    <!-- Loading State -->
-    <div *ngIf="isLoadingSignal()"
-         class="flex-1 flex items-center justify-center">
-      <div class="text-center">
-        <div
-             class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4">
-        </div>
-        <p class="text-gray-600 font-medium">Loading
-          entries...</p>
-      </div>
-    </div>
-
-    <!-- Error State -->
-    <div *ngIf="errorSignal() && !isLoadingSignal()"
-         class="flex-1 flex items-center justify-center">
-      <div
-           class="text-center bg-red-50 border border-red-200 rounded-xl p-8 mx-4">
-        <div
-             class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4 mx-auto">
-          <svg class="w-8 h-8 text-red-600" fill="none"
-               stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round"
-                  stroke-linejoin="round" stroke-width="2"
-                  d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-        </div>
-        <h3 class="text-lg font-semibold text-red-900 mb-2">
-          Error Loading Data</h3>
-        <p class="text-red-700 mb-4">{{ errorSignal() }}</p>
-        <button (click)="refreshData()"
-                class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
-          Try Again
-        </button>
-      </div>
-    </div>
-
-    <!-- Table Container -->
-    <div class="flex-1 p-4"
-         *ngIf="!isLoadingSignal() && !errorSignal()">
-      <div
-           class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
-        <div class="overflow-x-auto">
+      <!-- Table Container -->
+      <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden h-full flex flex-col"
+           *ngIf="!isLoadingSignal() && !errorSignal()">
+        <div class="flex-1 overflow-x-auto">
 
           <!-- Custom Tailwind Table -->
           <table class="min-w-full divide-y divide-gray-200"
