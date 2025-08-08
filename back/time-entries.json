@@ -1,13 +1,77 @@
 {
   "timeEntries": [
     {
+      "id": 1,
+      "date": "2025-07-10",
+      "startTime": "09:00",
+      "endTime": "17:30",
+      "break": "60",
+      "status": 2,
+      "project": "Project Alpha",
+      "description": "Bug fixing and code review for user authentication module",
+      "submittedForApprovalAt": "2025-07-14T12:49:46.950Z"
+    },
+    {
+      "id": 2,
+      "date": "2025-07-10",
+      "startTime": "08:30",
+      "endTime": "12:00",
+      "break": "30",
+      "status": 2,
+      "project": "Project Beta",
+      "description": "UI development for dashboard components",
+      "submittedForApprovalAt": "2025-07-14T12:44:55.623Z"
+    },
+    {
+      "id": 3,
+      "date": "2025-07-09",
+      "startTime": "10:00",
+      "endTime": "15:00",
+      "break": "45",
+      "status": 2,
+      "project": "Project Gamma",
+      "description": "Database optimization and query performance tuning",
+      "submittedForApprovalAt": "2025-07-14T12:44:55.623Z"
+    },
+    {
+      "id": 4,
+      "date": "2025-07-09",
+      "startTime": "14:00",
+      "endTime": "18:00",
+      "break": "15",
+      "status": 1,
+      "project": "Project Alpha",
+      "description": "Testing and documentation for new features"
+    },
+    {
+      "id": 5,
+      "date": "2025-07-08",
+      "startTime": "09:15",
+      "endTime": "17:00",
+      "break": "75",
+      "status": 1,
+      "project": "Project Beta",
+      "description": "Feature implementation for user profile management"
+    },
+    {
+      "id": 6,
+      "date": "2025-07-08",
+      "startTime": "13:00",
+      "endTime": "16:30",
+      "break": "30",
+      "status": 2,
+      "project": "Project Delta",
+      "description": "Initial research and planning for new microservice",
+      "submittedForApprovalAt": "2025-07-15T10:51:18.792Z"
+    },
+    {
       "id": 7,
       "date": "2025-07-07",
       "project": "",
-      "startTime": "14:35",
-      "endTime": "23:59",
+      "startTime": "07:35",
+      "endTime": "17:59",
       "break": "15",
-      "status": "draft",
+      "status": 3,
       "rejectionMessage": "",
       "description": ""
     },
@@ -17,10 +81,22 @@
       "project": "",
       "startTime": "14:35",
       "endTime": "23:59",
-      "break": "60",
-      "status": "draft",
+      "break": "",
+      "status": 3,
       "rejectionMessage": "",
       "description": ""
+    },
+    {
+      "id": 10,
+      "date": "2025-07-08",
+      "project": "",
+      "startTime": "10:36",
+      "endTime": "13:36",
+      "break": "",
+      "status": 2,
+      "rejectionMessage": "",
+      "description": "",
+      "submittedForApprovalAt": "2025-07-22T12:28:15.415Z"
     },
     {
       "id": 11,
@@ -29,9 +105,64 @@
       "startTime": "11:37",
       "endTime": "13:37",
       "break": "",
-      "status": "draft",
+      "status": 3,
       "rejectionMessage": "",
       "description": ""
+    },
+    {
+      "id": 12,
+      "date": "2025-07-16",
+      "project": "",
+      "startTime": "15:08",
+      "endTime": "16:08",
+      "break": "0h 30m",
+      "status": 3,
+      "rejectionMessage": "",
+      "description": ""
+    },
+    {
+      "id": 13,
+      "date": "2025-07-16",
+      "project": "",
+      "startTime": "15:21",
+      "endTime": "17:21",
+      "break": "45m",
+      "status": 3,
+      "rejectionMessage": "",
+      "description": ""
+    },
+    {
+      "id": 14,
+      "date": "2025-07-16",
+      "project": "",
+      "startTime": "16:50",
+      "endTime": "17:50",
+      "break": "45m",
+      "status": 3,
+      "rejectionMessage": "",
+      "description": ""
+    },
+    {
+      "id": 15,
+      "date": "2025-07-16",
+      "project": "",
+      "startTime": "16:51",
+      "endTime": "17:51",
+      "break": "0m",
+      "status": 3,
+      "rejectionMessage": "",
+      "description": ""
+    },
+    {
+      "id": 16,
+      "date": "2025-08-08",
+      "startTime": "12:16",
+      "endTime": "16:16",
+      "break": "5",
+      "description": "",
+      "status": 1,
+      "project": "",
+      "rejectionMessage": ""
     }
   ]
 }

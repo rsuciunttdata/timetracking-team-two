@@ -117,7 +117,7 @@
               End Time
             </label>
             <input id="endTime" name="endTime" type="time"
-              [(ngModel)]="entry.endTime" required
+              [(ngModel)]="entry.endTime"
               (blur)="fieldTouched.endTime = true"
               [ngClass]="{
                                 'border-red-500 focus:border-red-500': isFieldInvalid('endTime'),
