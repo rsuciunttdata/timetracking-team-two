@@ -128,7 +128,6 @@ export default async function handler(req, res) {
     const validation = validateEntryForApproval(entry);
 
     if (!validation.isValid) {
-      console.log('[Server] Entry validation failed for approval:', validation.error);
       return res.status(400).json({
         error: 'Cannot send entry for approval',
         message: validation.error,

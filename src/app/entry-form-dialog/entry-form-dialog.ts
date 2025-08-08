@@ -1,3 +1,5 @@
+import { environment } from './../environments/environment';
+import { TimeEntry } from './../models/time-entry.model';
 import { Component, Inject, inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
@@ -10,11 +12,11 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TimeEntryService } from '../services/time-entry.service';
 import { EntryRefreshService } from '../services/entry-refresh.service';
-import { TimeEntry } from '../models/time-entry.model';
 
 interface DialogData {
   entry?: TimeEntry;
   isEditMode?: boolean;
+  allEntries?: TimeEntry[];
 }
 
 @Component({
@@ -33,35 +35,29 @@ interface DialogData {
   ]
 })
 export class EntryFormDialogComponent {
-  entry = {
-    date: '',
-    project: '',
-    startTime: '',
-    endTime: '',
-    break: '',
-    status: 'draft' as 'draft' | 'pending' | 'accepted' | 'rejected',
-    rejectionMessage: '',
-    description: ''
-  };
+  entry: TimeEntry = {} as TimeEntry;
   breakHours: number = 0;
   breakMinutes: number = 0;
   isEditMode = false;
   dialogTitle = 'Add New Entry';
   submitButtonText = 'Add Entry';
   maxDate: string;
+  showDataLoadedNotification = false;
+  allEntries: TimeEntry[] = [];
+  currentEntryId: string | null = null;
+  originalEntry: TimeEntry | null = null;
 
   fieldTouched = {
-  date: false,
-  project: false,
-  startTime: false,
-  endTime: false,
-  break: false,
-  status: false,
-  rejectionMessage: false,
-  description: false
+    id: false,
+    date: false,
+    project: false,
+    startTime: false,
+    endTime: false,
+    break: false,
+    status: false,
+    rejectionMessage: false,
+    description: false
   };
-
-
 
   private refreshService = inject(EntryRefreshService);
 
@@ -72,6 +68,7 @@ export class EntryFormDialogComponent {
     private timeEntryService: TimeEntryService
   ) {
     this.maxDate = new Date().toISOString().split('T')[0];
+    this.allEntries = data?.allEntries || [];
 
     if (data?.entry) {
       this.isEditMode = true;
@@ -79,6 +76,7 @@ export class EntryFormDialogComponent {
       this.submitButtonText = 'Update Entry';
 
       this.entry = {
+        id: data.entry.id,
         date: data.entry.date || '',
         project: data.entry.project || '',
         startTime: data.entry.startTime || '',
@@ -100,6 +98,8 @@ export class EntryFormDialogComponent {
   }
 
   submit() {
+    this.data.entry = this.entry;
+
     if (!this.entry.date || !this.entry.startTime) {
       this.showSnackBar('Please fill in all required fields (Date, Project, Start Time, End Time)', 'error');
       return;
@@ -111,14 +111,10 @@ export class EntryFormDialogComponent {
       return;
     }
 
-    const total = this.calculateTotal();
     const payload = {
       ...this.entry,
-      total: total,
       description: this.entry.description || ''
     };
-
-    // console.log(`Break hour from form: ${this.breakHours}, Break minutes from form: ${this.breakMinutes}`);
 
     if (this.isEditMode) {
       this.timeEntryService.updateTimeEntry(this.data.entry.id, payload).subscribe({
@@ -194,7 +190,6 @@ export class EntryFormDialogComponent {
   updateBreakMinutes(): void {
     const totalMinutes = (this.breakHours || 0) * 60 + (this.breakMinutes || 0);
     this.entry.break = totalMinutes.toString();
-    console.log(`Break hour from form: ${this.breakHours}, Break minutes from form: ${this.breakMinutes}`);
   }
 
   initializeBreakInputs(): void {
@@ -223,15 +218,15 @@ export class EntryFormDialogComponent {
     if (!this.entry.break || this.entry.break.trim() === '') {
       return false;
     }
- 
+
     const breakTime = this.entry.break.trim();
     const fullFormatRegex = /^(\d+)h\s+(\d+)m$/;
     const hoursOnlyRegex = /^(\d+)h$/;
     const minutesOnlyRegex = /^(\d+)m$/;
- 
+
     let hours = 0;
     let minutes = 0;
- 
+
     if (fullFormatRegex.test(breakTime)) {
       const match = breakTime.match(fullFormatRegex);
       hours = parseInt(match![1]);
@@ -245,7 +240,7 @@ export class EntryFormDialogComponent {
     } else {
       return false;
     }
- 
+
     return hours >= 0 && hours <= 8 && minutes >= 0 && minutes <= 59;
   }
 
@@ -253,13 +248,49 @@ export class EntryFormDialogComponent {
     return !this.isValidBreakFormat() && this.fieldTouched.break;
   }
 
+  markAllFieldsTouched() {
+    (Object.keys(this.fieldTouched) as Array<keyof typeof this.fieldTouched>).forEach(key => {
+      this.fieldTouched[key] = true;
+    });
+  }
 
+  onDateChange(): void {
 
- markAllFieldsTouched() {
-  (Object.keys(this.fieldTouched) as Array<keyof typeof this.fieldTouched>).forEach(key => {
-    this.fieldTouched[key] = true;
-  });
-}
+    if (!this.entry.date) return;
 
+    const existingEntry = this.allEntries.find(entry => entry.date === this.entry.date);
 
+    if (existingEntry) {
+      const selectedDate = this.entry.date;
+
+      this.entry = {
+        id: existingEntry.id,
+        date: selectedDate,
+        project: existingEntry.project || '',
+        startTime: existingEntry.startTime || '',
+        endTime: existingEntry.endTime || '',
+        break: existingEntry.break || '',
+        status: 'draft',
+        rejectionMessage: '',
+        description: existingEntry.description || ''
+      };
+
+      if (this.entry.break) {
+        this.breakHours = Math.floor(parseInt(this.entry.break) / 60);
+        this.breakMinutes = parseInt(this.entry.break) % 60;
+      } else {
+        this.breakHours = 0;
+        this.breakMinutes = 0;
+      }
+
+      this.showDataLoadedNotification = true;
+      this.showSnackBar('Data found for this date and loaded into the form', 'info');
+
+      setTimeout(() => {
+        this.showDataLoadedNotification = false;
+      }, 5000);
+    } else {
+      this.showDataLoadedNotification = false;
+    }
+  }
 }

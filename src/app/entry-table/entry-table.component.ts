@@ -140,7 +140,6 @@ export class EntryTableComponent implements OnInit, AfterViewInit {
     private snackBar: MatSnackBar
   ) {
     this.instanceId = ++EntryTableComponent.instanceCount;
-    console.log(`EntryTableComponent constructed [instance ${this.instanceId}]`);
 
     if (isPlatformBrowser(this.platformId)) {
       this.initializeUser();
@@ -148,7 +147,6 @@ export class EntryTableComponent implements OnInit, AfterViewInit {
 
     effect(() => {
       this.refreshService.refreshSignal();
-      console.log(`[instance ${this.instanceId}] refreshSignal triggered`);
       if (isPlatformBrowser(this.platformId)) {
         this.loadTimeEntries();
       }
@@ -166,14 +164,12 @@ export class EntryTableComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit() {
-    console.log('EntryTableComponent ngOnInit');
     if (isPlatformBrowser(this.platformId)) {
       this.loadTimeEntries();
     }
   }
 
   ngAfterViewInit() {
-    console.log('EntryTableComponent ngAfterViewInit');
     this.dataSource.sort = this.sort;
   }
 
@@ -308,7 +304,9 @@ export class EntryTableComponent implements OnInit, AfterViewInit {
     const dialogRef = this.dialog.open(EntryFormDialogComponent, {
       width: '500px',
       disableClose: true,
-      data: {}
+      data: {
+        allEntries: this.entriesSignal()
+      }
     });
 
     dialogRef.afterClosed().subscribe(newEntry => {
@@ -342,7 +340,11 @@ export class EntryTableComponent implements OnInit, AfterViewInit {
     const dialogRef = this.dialog.open(EntryFormDialogComponent, {
       width: '500px',
       disableClose: true,
-      data: { entry, isEditMode: true }
+      data: {
+        entry,
+        isEditMode: true,
+        allEntries: this.entriesSignal()
+      }
     });
 
     dialogRef.afterClosed().subscribe(result => {

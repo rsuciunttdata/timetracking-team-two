@@ -79,7 +79,6 @@ export default async function handler(req, res) {
       const validation = validateTimeEntry(req.body, false);
 
       if (!validation.isValid) {
-        console.log('[Server] Validation failed for POST request:', validation.errors);
         return res.status(400).json({
           error: 'Validation failed',
           message: 'The provided data is invalid',
