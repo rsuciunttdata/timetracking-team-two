@@ -4,7 +4,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { UserAuthService, User } from '../services/auth.service';
 import { ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { generateUuid } from '../utils/uuid.util';
+import { generateUuid } from '../utils/uuid.util'; 
 
 @Component({
   selector: 'app-login',
@@ -39,16 +39,19 @@ export class LoginComponent {
 
       this.authService.getUsers().subscribe({
         next: (users: User[]) => {
+       
           const matchedUser = users.find(
             u => u.email === email && u.password === password
           );
 
           if (matchedUser) {
-           
+          
             const sessionUuid = generateUuid();
 
+          
             localStorage.setItem('isLoggedIn', 'true');
-            localStorage.setItem('uuid', sessionUuid);
+            localStorage.setItem('userId', matchedUser.id);   
+            localStorage.setItem('sessionUuid', sessionUuid); 
 
             this.router.navigate(['/dashboard']);
           } else {
@@ -63,6 +66,7 @@ export class LoginComponent {
         }
       });
     } else {
+      
       Object.keys(this.loginForm.controls).forEach(key => {
         this.loginForm.get(key)?.markAsTouched();
       });
@@ -75,7 +79,8 @@ export class LoginComponent {
 
   logout(): void {
     localStorage.removeItem('isLoggedIn');
-    localStorage.removeItem('uuid');
+    localStorage.removeItem('userId');    
+    localStorage.removeItem('sessionUuid'); 
     this.router.navigate(['/login']);
   }
 }

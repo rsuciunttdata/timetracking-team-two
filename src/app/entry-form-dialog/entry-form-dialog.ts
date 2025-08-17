@@ -135,7 +135,7 @@ export class EntryFormDialogComponent {
       return;
     }
 
-    const uuid = localStorage.getItem('uuid');
+    const uuid = localStorage.getItem('id');
     if (!uuid) {
       this.showSnackBar('User ID is missing. Please log in again.', 'error');
       return;

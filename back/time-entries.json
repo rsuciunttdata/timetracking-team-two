@@ -44,16 +44,6 @@
       "description": "Testing and documentation for new features"
     },
     {
-      "id": 5,
-      "date": "2025-07-08",
-      "startTime": "09:15",
-      "endTime": "17:00",
-      "break": "75",
-      "status": 1,
-      "project": "Project Beta",
-      "description": "Feature implementation for user profile management"
-    },
-    {
       "id": 6,
       "date": "2025-07-08",
       "startTime": "13:00",
@@ -158,11 +148,33 @@
       "date": "2025-08-08",
       "startTime": "12:16",
       "endTime": "16:16",
-      "break": "5",
+      "break": "6",
       "description": "",
       "status": 1,
       "project": "",
       "rejectionMessage": ""
+    },
+    {
+      "id": "",
+      "date": "2025-07-31",
+      "project": "",
+      "startTime": "14:38",
+      "endTime": "14:37",
+      "break": "5m",
+      "status": 1,
+      "rejectionMessage": "",
+      "description": ""
+    },
+    {
+      "id": "",
+      "date": "2025-08-07",
+      "project": "",
+      "startTime": "14:39",
+      "endTime": "16:39",
+      "break": "5m",
+      "status": 1,
+      "rejectionMessage": "",
+      "description": ""
     }
   ]
 }
