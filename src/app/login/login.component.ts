@@ -1,9 +1,10 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { UserAuthService, User} from '../services/auth.service';
+import { UserAuthService, User } from '../services/auth.service';
 import { ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { generateUuid } from '../utils/uuid.util'; // ✅ import our helper
 
 @Component({
   selector: 'app-login',
@@ -43,8 +44,12 @@ export class LoginComponent {
           );
 
           if (matchedUser) {
+            // ✅ generate a NEW UUID for this login session
+            const sessionUuid = generateUuid();
+
             localStorage.setItem('isLoggedIn', 'true');
-            localStorage.setItem('uuid', matchedUser.uuid);
+            localStorage.setItem('uuid', sessionUuid);
+
             this.router.navigate(['/dashboard']);
           } else {
             this.loginError = 'Invalid email or password.';
@@ -67,8 +72,6 @@ export class LoginComponent {
   togglePasswordVisibility(): void {
     this.showPassword = !this.showPassword;
   }
-
-
 
   logout(): void {
     localStorage.removeItem('isLoggedIn');
