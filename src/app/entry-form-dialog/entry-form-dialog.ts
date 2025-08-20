@@ -43,7 +43,8 @@ export class EntryFormDialogComponent {
     rejectionMessage: '',
     description: ''
   };
-
+  breakHours: number = 0;
+  breakMinutes: number = 0;
   isEditMode = false;
   dialogTitle = 'Add New Entry';
   submitButtonText = 'Add Entry';
@@ -90,6 +91,14 @@ export class EntryFormDialogComponent {
     }
   }
 
+  ngOnInit(): void {
+    if (this.entry?.break) {
+      this.breakHours = Math.floor(parseInt(this.entry.break) / 60);
+      this.breakMinutes = parseInt(this.entry.break) % 60;
+    }
+    this.initializeBreakInputs();
+  }
+
   submit() {
     if (!this.entry.date || !this.entry.startTime) {
       this.showSnackBar('Please fill in all required fields (Date, Project, Start Time, End Time)', 'error');
@@ -108,6 +117,8 @@ export class EntryFormDialogComponent {
       total: total,
       description: this.entry.description || ''
     };
+
+    // console.log(`Break hour from form: ${this.breakHours}, Break minutes from form: ${this.breakMinutes}`);
 
     if (this.isEditMode) {
       this.timeEntryService.updateTimeEntry(this.data.entry.id, payload).subscribe({
@@ -178,6 +189,18 @@ export class EntryFormDialogComponent {
     }
 
     return hours * 60 + minutes;
+  }
+
+  updateBreakMinutes(): void {
+    const totalMinutes = (this.breakHours || 0) * 60 + (this.breakMinutes || 0);
+    this.entry.break = totalMinutes.toString();
+    console.log(`Break hour from form: ${this.breakHours}, Break minutes from form: ${this.breakMinutes}`);
+  }
+
+  initializeBreakInputs(): void {
+    const totalMinutes = parseInt(this.entry.break || '0', 10);
+    this.breakHours = Math.floor(totalMinutes / 60);
+    this.breakMinutes = totalMinutes % 60;
   }
 
   private showSnackBar(message: string, type: 'success' | 'error' | 'info' = 'info') {

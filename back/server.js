@@ -64,9 +64,11 @@ app.post('/api/time-entries', async (req, res) => {
       ? Math.max(...data.timeEntries.map(e => e.id))
       : 0;
 
+    const { total, ...rest } = req.body;
+
     const newEntry = {
       id: maxId + 1,
-      ...req.body,
+      ...rest,
       status: req.body.status || 'draft'
     };
 
@@ -93,9 +95,11 @@ app.put('/api/time-entries/:id', async (req, res) => {
       return res.status(404).json({ error: 'Entry not found' });
     }
 
+    const { total, ...rest } = req.body;
+
     const updatedEntry = {
       ...data.timeEntries[entryIndex],
-      ...req.body,
+      ...rest,
       id: parseInt(req.params.id)
     };
 

@@ -455,9 +455,48 @@ export class EntryTableComponent implements OnInit, AfterViewInit {
     });
   }
 
+  calculateTotal(entry: TimeEntry): string {
+    const start = this.parseTime(entry.startTime);
+    const end = this.parseTime(entry.endTime);
+    const breakMinutes = parseInt(entry.break) || 0;
+
+    if (!start || !end) return '';
+
+    const totalMinutes = ((end.getTime() - start.getTime()) / 60000) - breakMinutes;
+
+    if (totalMinutes < 0 || isNaN(totalMinutes)) return '';
+
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+
+    return `${hours}h ${minutes}m`;
+  }
+
+  private parseTime(timeStr: string): Date | null {
+    if (!timeStr) return null;
+    const [hours, minutes] = timeStr.split(':').map(Number);
+    if (isNaN(hours) || isNaN(minutes)) return null;
+
+    const date = new Date();
+    date.setHours(hours, minutes, 0, 0);
+    return date;
+  }
+
   refreshData() {
     this.refreshService.triggerRefresh();
   }
+
+  formatBreakTime(minutesString: string): string {
+    const totalMinutes = parseInt(minutesString || '0', 10);
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+
+    const hPart = hours > 0 ? `${hours}h` : '';
+    const mPart = minutes > 0 ? `${minutes}m` : '';
+
+    return `${hPart} ${mPart}`.trim() || '0m';
+  }
+
 
   private showSnackBar(message: string, type: 'success' | 'error' | 'info' = 'info') {
     this.snackBar.open(message, 'Close', {

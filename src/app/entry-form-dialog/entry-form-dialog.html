@@ -1,51 +1,54 @@
-<div class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-  <div class="w-full max-w-4xl bg-white rounded-3xl shadow-2xl transform transition-all duration-300 scale-100 animate-in slide-in-from-bottom-4">
+<div
+     class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+  <div
+       class="w-full max-w-4xl bg-white rounded-3xl shadow-2xl transform transition-all duration-300 scale-100 animate-in slide-in-from-bottom-4">
 
-    <div class="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-t-3xl px-8 py-6">
+    <div
+         class="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-t-3xl px-8 py-6">
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-3">
-          <div class="p-2 bg-white/20 rounded-xl backdrop-blur-sm">
-            <mat-icon class="text-white text-2xl">schedule</mat-icon>
+          <div
+               class="p-2 bg-white/20 rounded-xl backdrop-blur-sm">
+            <mat-icon
+                      class="text-white text-2xl">schedule</mat-icon>
           </div>
           <div>
-            <h2 class="text-2xl font-bold text-white">Time Entry</h2>
-            <p class="text-blue-100 text-sm">Track your work hours</p>
+            <h2 class="text-2xl font-bold text-white">Time
+              Entry</h2>
+            <p class="text-blue-100 text-sm">Track your work
+              hours</p>
           </div>
         </div>
-        <button
-          type="button"
-          (click)="cancel()"
-          class="p-2 hover:bg-white/20 rounded-xl transition-colors duration-200"
-        >
+        <button type="button" (click)="cancel()"
+                class="p-2 hover:bg-white/20 rounded-xl transition-colors duration-200">
           <mat-icon class="text-white">close</mat-icon>
         </button>
       </div>
     </div>
 
     <div class="p-8">
-      <form (ngSubmit)="submit()" #entryForm="ngForm" class="space-y-6">
+      <form (ngSubmit)="submit()" #entryForm="ngForm"
+            class="space-y-6">
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
           <div class="input-group">
-            <label for="date" class="floating-label block text-sm font-semibold text-gray-700 mb-2">
-              <mat-icon class="text-base mr-1 text-gray-500">event</mat-icon>
+            <label for="date"
+                   class="floating-label block text-sm font-semibold text-gray-700 mb-2">
+              <mat-icon
+                        class="text-base mr-1 text-gray-500">event</mat-icon>
               Date *
             </label>
-           <input
-              id="date"
-              name="date"
-              type="date"
-              [(ngModel)]="entry.date"
-              [max]="maxDate"
-              required
-              (blur)="fieldTouched.date = true"
-              [ngClass]="{
+            <input id="date" name="date" type="date"
+                   [(ngModel)]="entry.date" [max]="maxDate"
+                   required
+                   (blur)="fieldTouched.date = true"
+                   [ngClass]="{
                 'border-red-500 focus:border-red-500': isFieldInvalid('date')
               }"
-              class="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:bg-white focus:outline-none transition-all duration-300 text-gray-800 font-medium"
-            />
-            <div *ngIf="isFieldInvalid('date')" class="text-sm text-red-600 mt-1">
+                   class="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:bg-white focus:outline-none transition-all duration-300 text-gray-800 font-medium" />
+            <div *ngIf="isFieldInvalid('date')"
+                 class="text-sm text-red-600 mt-1">
               Date is required.
             </div>
 
@@ -60,52 +63,47 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
 
           <div class="input-group">
-            <label for="startTime" class="floating-label block text-sm font-semibold text-gray-700 mb-2">
-              <mat-icon class="text-base mr-1 text-gray-500">play_arrow</mat-icon>
+            <label for="startTime"
+                   class="floating-label block text-sm font-semibold text-gray-700 mb-2">
+              <mat-icon
+                        class="text-base mr-1 text-gray-500">play_arrow</mat-icon>
               Start Time *
             </label>
-            <input
-  id="startTime"
-  name="startTime"
-  type="time"
-  [(ngModel)]="entry.startTime"
-  required
-  (blur)="fieldTouched.startTime = true"
-  [ngClass]="{
+            <input id="startTime" name="startTime"
+                   type="time" [(ngModel)]="entry.startTime"
+                   required
+                   (blur)="fieldTouched.startTime = true"
+                   [ngClass]="{
     'border-red-500 focus:border-red-500': isFieldInvalid('startTime')
-  }"
-  class="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:bg-white focus:outline-none transition-all duration-300 text-gray-800 font-medium"
-/>
-<div *ngIf="isFieldInvalid('startTime')" class="text-sm text-red-600 mt-1">
-  Start time is required.
-</div>
+  }" class="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:bg-white focus:outline-none transition-all duration-300 text-gray-800 font-medium" />
+            <div *ngIf="isFieldInvalid('startTime')"
+                 class="text-sm text-red-600 mt-1">
+              Start time is required.
+            </div>
 
           </div>
 
           <div class="input-group">
-            <label for="endTime" class="floating-label block text-sm font-semibold text-gray-700 mb-2">
-              <mat-icon class="text-base mr-1 text-gray-500">stop</mat-icon>
+            <label for="endTime"
+                   class="floating-label block text-sm font-semibold text-gray-700 mb-2">
+              <mat-icon
+                        class="text-base mr-1 text-gray-500">stop</mat-icon>
               End Time
             </label>
-          <input
-  id="endTime"
-  name="endTime"
-  type="time"
-  [(ngModel)]="entry.endTime"
-  required
-  (blur)="fieldTouched.endTime = true"
-  [ngClass]="{
+            <input id="endTime" name="endTime" type="time"
+                   [(ngModel)]="entry.endTime" required
+                   (blur)="fieldTouched.endTime = true"
+                   [ngClass]="{
     'border-red-500 focus:border-red-500': isFieldInvalid('endTime')
-  }"
-  class="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:bg-white focus:outline-none transition-all duration-300 text-gray-800 font-medium"
-/>
-<div *ngIf="isFieldInvalid('endTime')" class="text-sm text-red-600 mt-1">
-  End time is required.
-</div>
+  }" class="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:bg-white focus:outline-none transition-all duration-300 text-gray-800 font-medium" />
+            <div *ngIf="isFieldInvalid('endTime')"
+                 class="text-sm text-red-600 mt-1">
+              End time is required.
+            </div>
 
           </div>
 
-          <div class="input-group">
+          <!-- <div class="input-group">
             <label for="break" class="floating-label block text-sm font-semibold text-gray-700 mb-2">
               <mat-icon class="text-base mr-1 text-gray-500">coffee</mat-icon>
               Break Duration
@@ -132,7 +130,45 @@
               <mat-icon class="text-xs mr-1">info</mat-icon>
               Format: Xh Ym, Xh, or Ym (e.g., 1h 30m, 2h, 45m) <br> Hours: 0-8, Minutes: 0-59
             </small>
+          </div> -->
+
+          <div class="input-group">
+            <label
+                   class="floating-label block text-sm font-semibold text-gray-700 mb-2">
+              <mat-icon
+                        class="text-base mr-1 text-gray-500">coffee</mat-icon>
+              Break Duration
+            </label>
+
+            <div class="flex gap-4">
+              <div class="flex-1">
+                <input type="number" min="0" max="8"
+                       [(ngModel)]="breakHours"
+                       name="breakHours"
+                       (ngModelChange)="updateBreakMinutes()"
+                       placeholder="Hours"
+                       class="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:bg-white focus:outline-none transition-all duration-300 text-gray-800 font-medium placeholder-gray-400" />
+              </div>
+
+              <div class="flex-1">
+                <input type="number" min="0" max="59"
+                       [(ngModel)]="breakMinutes"
+                       name="breakMinutes"
+                       (ngModelChange)="updateBreakMinutes()"
+                       placeholder="Minutes"
+                       class="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:bg-white focus:outline-none transition-all duration-300 text-gray-800 font-medium placeholder-gray-400" />
+              </div>
+            </div>
+
+            <small
+                   class="text-xs text-gray-500 mt-1 flex items-center">
+              <mat-icon class="text-xs mr-1">info</mat-icon>
+              Enter break duration in hours and minutes
+              (e.g., 1h 30m)
+            </small>
           </div>
+
+
         </div>
 
         <!-- <div class="bg-gradient-to-r from-gray-50 to-gray-100 rounded-2xl p-6 border border-gray-200">
@@ -186,26 +222,23 @@
           </div>
         </div> -->
 
-        <div class="flex items-center justify-between pt-6 border-t border-gray-200">
-          <div class="text-sm text-gray-500 flex items-center gap-2">
+        <div
+             class="flex items-center justify-between pt-6 border-t border-gray-200">
+          <div
+               class="text-sm text-gray-500 flex items-center gap-2">
             <mat-icon class="text-base">info</mat-icon>
             All fields marked with * are required
           </div>
 
           <div class="flex gap-3">
-            <button
-              type="button"
-              (click)="cancel()"
-              class="px-6 py-3 text-gray-700 font-semibold bg-gray-100 hover:bg-gray-200 rounded-xl transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 flex items-center gap-2"
-            >
+            <button type="button" (click)="cancel()"
+                    class="px-6 py-3 text-gray-700 font-semibold bg-gray-100 hover:bg-gray-200 rounded-xl transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 flex items-center gap-2">
               <mat-icon class="text-base">close</mat-icon>
               Cancel
             </button>
 
-            <button
-              type="submit"
-              class="px-8 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-xl transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center gap-2"
-            >
+            <button type="submit"
+                    class="px-8 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-xl transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center gap-2">
               <mat-icon class="text-base">save</mat-icon>
               Save Entry
             </button>

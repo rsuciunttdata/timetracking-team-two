@@ -5,8 +5,7 @@
       "date": "2025-07-10",
       "startTime": "09:00",
       "endTime": "17:30",
-      "break": "1h 00m",
-      "total": "7h 30m",
+      "break": "60",
       "status": "pending",
       "project": "Project Alpha",
       "description": "Bug fixing and code review for user authentication module",
@@ -17,8 +16,7 @@
       "date": "2025-07-10",
       "startTime": "08:30",
       "endTime": "12:00",
-      "break": "30m",
-      "total": "3h 00m",
+      "break": "30",
       "status": "pending",
       "project": "Project Beta",
       "description": "UI development for dashboard components",
@@ -29,8 +27,7 @@
       "date": "2025-07-09",
       "startTime": "10:00",
       "endTime": "15:00",
-      "break": "45m",
-      "total": "4h 15m",
+      "break": "45",
       "status": "pending",
       "project": "Project Gamma",
       "description": "Database optimization and query performance tuning",
@@ -41,8 +38,7 @@
       "date": "2025-07-09",
       "startTime": "14:00",
       "endTime": "18:00",
-      "break": "15m",
-      "total": "3h 45m",
+      "break": "15",
       "status": "accepted",
       "project": "Project Alpha",
       "description": "Testing and documentation for new features"
@@ -52,8 +48,7 @@
       "date": "2025-07-08",
       "startTime": "09:15",
       "endTime": "17:00",
-      "break": "1h 15m",
-      "total": "6h 30m",
+      "break": "75",
       "status": "accepted",
       "project": "Project Beta",
       "description": "Feature implementation for user profile management"
@@ -63,8 +58,7 @@
       "date": "2025-07-08",
       "startTime": "13:00",
       "endTime": "16:30",
-      "break": "0h 30m",
-      "total": "3h 0m",
+      "break": "30",
       "status": "pending",
       "project": "Project Delta",
       "description": "Initial research and planning for new microservice",
@@ -76,11 +70,10 @@
       "project": "",
       "startTime": "16:04",
       "endTime": "21:03",
-      "break": "",
+      "break": "80",
       "status": "draft",
       "rejectionMessage": "",
-      "description": "",
-      "total": "4h 59m"
+      "description": ""
     },
     {
       "id": 8,
@@ -91,8 +84,7 @@
       "break": "",
       "status": "draft",
       "rejectionMessage": "",
-      "description": "",
-      "total": "1h 0m"
+      "description": ""
     },
     {
       "id": 9,
@@ -103,8 +95,7 @@
       "break": "",
       "status": "draft",
       "rejectionMessage": "",
-      "description": "",
-      "total": "1h 0m"
+      "description": ""
     },
     {
       "id": 10,
@@ -116,7 +107,6 @@
       "status": "pending",
       "rejectionMessage": "",
       "description": "",
-      "total": "3h 0m",
       "submittedForApprovalAt": "2025-07-22T12:28:15.415Z"
     },
     {
@@ -128,8 +118,7 @@
       "break": "",
       "status": "draft",
       "rejectionMessage": "",
-      "description": "",
-      "total": "2h 0m"
+      "description": ""
     },
     {
       "id": 12,
@@ -140,8 +129,7 @@
       "break": "0h 30m",
       "status": "draft",
       "rejectionMessage": "",
-      "description": "",
-      "total": "0h 30m"
+      "description": ""
     },
     {
       "id": 13,
@@ -152,8 +140,7 @@
       "break": "45m",
       "status": "draft",
       "rejectionMessage": "",
-      "description": "",
-      "total": "1h 15m"
+      "description": ""
     },
     {
       "id": 14,
@@ -164,8 +151,7 @@
       "break": "45m",
       "status": "draft",
       "rejectionMessage": "",
-      "description": "",
-      "total": "0h 15m"
+      "description": ""
     },
     {
       "id": 15,
@@ -176,24 +162,12 @@
       "break": "0m",
       "status": "draft",
       "rejectionMessage": "",
-      "description": "",
-      "total": "1h 0m"
+      "description": ""
     },
     {
-      "id": 16,
-      "date": "2025-07-16",
-      "project": "",
-      "startTime": "17:15",
-      "endTime": "18:15",
-      "break": "45m",
-      "status": "draft",
-      "rejectionMessage": "",
-      "description": "",
-      "total": "0h 15m"
-    },
-    {
+      "uuid": "",
       "id": 17,
-      "date": "2025-07-16",
+      "date": "2025-08-04",
       "project": "",
       "startTime": "23:15",
       "endTime": "23:20",
@@ -201,7 +175,18 @@
       "status": "draft",
       "rejectionMessage": "",
       "description": "",
-      "total": "0h 3m"
+      "submittedForApprovalAt": "2025-08-04T11:27:51.310Z"
+    },
+    {
+      "id": 18,
+      "date": "2025-08-05",
+      "project": "",
+      "startTime": "14:15",
+      "endTime": "20:15",
+      "break": "30m",
+      "status": "draft",
+      "rejectionMessage": "",
+      "description": ""
     }
   ]
 }
