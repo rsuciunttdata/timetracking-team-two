@@ -51,7 +51,8 @@
       "break": "75",
       "status": 1,
       "project": "Project Beta",
-      "description": "Feature implementation for user profile management"
+      "description": "Feature implementation for user profile management",
+      "rejectionMessage": ""
     },
     {
       "id": 6,
