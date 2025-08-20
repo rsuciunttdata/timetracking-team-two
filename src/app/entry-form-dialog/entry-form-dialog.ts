@@ -49,6 +49,19 @@ export class EntryFormDialogComponent {
   submitButtonText = 'Add Entry';
   maxDate: string;
 
+  fieldTouched = {
+  date: false,
+  project: false,
+  startTime: false,
+  endTime: false,
+  break: false,
+  status: false,
+  rejectionMessage: false,
+  description: false
+  };
+
+
+
   private refreshService = inject(EntryRefreshService);
 
   constructor(
@@ -117,6 +130,14 @@ export class EntryFormDialogComponent {
     }
   }
 
+  private handleBackendError(error: any) {
+    console.error('Backend error:', error);
+    const details = error?.error?.details;
+    const message = details?.length ? details.join('\n') :
+      error?.error?.message || 'Something went wrong. Please try again.';
+    this.showSnackBar(message, 'error');
+  }
+
   cancel() {
     this.dialogRef.close();
   }
@@ -168,11 +189,54 @@ export class EntryFormDialogComponent {
     });
   }
 
-  private handleBackendError(error: any) {
-    console.error('Backend error:', error);
-    const details = error?.error?.details;
-    const message = details?.length ? details.join('\n') :
-      error?.error?.message || 'Something went wrong. Please try again.';
-    this.showSnackBar(message, 'error');
+  isFieldInvalid(field: keyof typeof this.entry): boolean {
+    return (
+      !this.entry[field] &&
+      this.fieldTouched[field]
+    );
   }
+
+  private isValidBreakFormat(): boolean {
+    if (!this.entry.break || this.entry.break.trim() === '') {
+      return false;
+    }
+ 
+    const breakTime = this.entry.break.trim();
+    const fullFormatRegex = /^(\d+)h\s+(\d+)m$/;
+    const hoursOnlyRegex = /^(\d+)h$/;
+    const minutesOnlyRegex = /^(\d+)m$/;
+ 
+    let hours = 0;
+    let minutes = 0;
+ 
+    if (fullFormatRegex.test(breakTime)) {
+      const match = breakTime.match(fullFormatRegex);
+      hours = parseInt(match![1]);
+      minutes = parseInt(match![2]);
+    } else if (hoursOnlyRegex.test(breakTime)) {
+      const match = breakTime.match(hoursOnlyRegex);
+      hours = parseInt(match![1]);
+    } else if (minutesOnlyRegex.test(breakTime)) {
+      const match = breakTime.match(minutesOnlyRegex);
+      minutes = parseInt(match![1]);
+    } else {
+      return false;
+    }
+ 
+    return hours >= 0 && hours <= 8 && minutes >= 0 && minutes <= 59;
+  }
+
+  isBreakInvalid(): boolean {
+    return !this.isValidBreakFormat() && this.fieldTouched.break;
+  }
+
+
+
+ markAllFieldsTouched() {
+  (Object.keys(this.fieldTouched) as Array<keyof typeof this.fieldTouched>).forEach(key => {
+    this.fieldTouched[key] = true;
+  });
+}
+
+
 }
