@@ -15,7 +15,7 @@ import { EntryFormDialogComponent } from '../entry-form-dialog/entry-form-dialog
 import { ConfirmationDialogComponent, ConfirmationDialogData } from '../confirmation-dialog/confirmation-dialog';
 import { TimeEntryService } from '../services/time-entry.service';
 import { EntryRefreshService } from '../services/entry-refresh.service';
-import { TimeEntry } from '../models/time-entry.model';
+import { getStatusText, TimeEntry } from '../models/time-entry.model';
 
 @Component({
   selector: 'app-entry-table',
@@ -51,7 +51,7 @@ export class EntryTableComponent implements OnInit, AfterViewInit {
   filtersSignal = signal({
     dateFrom: '',
     dateTo: '',
-    statuses: [] as string[]
+    statuses: [] as number[]
   });
 
   currentPageSignal = signal<number>(0);
@@ -120,10 +120,10 @@ export class EntryTableComponent implements OnInit, AfterViewInit {
   }
 
   statusOptions = [
-    { value: 'draft', label: 'Draft' },
-    { value: 'pending', label: 'Pending' },
-    { value: 'accepted', label: 'Acceptat' },
-    { value: 'rejected', label: 'Respins' }
+    { value: 1, label: 'Draft' },
+    { value: 2, label: 'Pending' },
+    { value: 3, label: 'Acceptat' },
+    { value: 4, label: 'Respins' }
   ];
 
   @ViewChild(MatSort) sort!: MatSort;
@@ -218,7 +218,7 @@ export class EntryTableComponent implements OnInit, AfterViewInit {
     this.showSnackBar('Filters cleared', 'info');
   }
 
-  toggleStatus(value: string): void {
+  toggleStatus(value: number): void {
     const currentFilters = this.filtersSignal();
     const currentStatuses = [...currentFilters.statuses];
     const index = currentStatuses.indexOf(value);
@@ -248,52 +248,46 @@ export class EntryTableComponent implements OnInit, AfterViewInit {
     return this.filteredEntriesSignal();
   }
 
-  getStatusIcon(status: string): string {
+  getStatusIcon(status: number): string {
     switch (status) {
-      case 'accepted': return 'check_circle';
-      case 'pending': return 'schedule';
-      case 'draft': return 'edit';
-      case 'rejected': return 'cancel';
+      case 3: return 'check_circle';
+      case 2: return 'schedule';
+      case 1: return 'edit';
+      case 4: return 'cancel';
       default: return 'help';
     }
   }
 
-  getStatusText(status: string): string {
-    switch (status) {
-      case 'accepted': return 'Acceptat';
-      case 'pending': return 'Pending';
-      case 'draft': return 'Draft';
-      case 'rejected': return 'Respins';
-      default: return 'Necunoscut';
-    }
+  getStatusText(status: number): string {
+    return getStatusText(status);
   }
 
-  getStatusClasses(status: string): string {
+  getStatusClasses(status: number): string {
     switch (status) {
-      case 'accepted': return 'bg-green-100 text-green-800';
-      case 'pending': return 'bg-blue-100 text-blue-800';
-      case 'draft': return 'bg-yellow-100 text-yellow-800';
-      case 'rejected': return 'bg-red-100 text-red-800';
+      case 3: return 'bg-green-100 text-green-800';
+      case 2: return 'bg-blue-100 text-blue-800';
+      case 1: return 'bg-yellow-100 text-yellow-800';
+      case 4: return 'bg-red-100 text-red-800';
       default: return 'bg-gray-100 text-gray-800';
     }
   }
 
-  getStatusIconColor(status: string): string {
+  getStatusIconColor(status: number): string {
     switch (status) {
-      case 'accepted': return 'bg-green-600';
-      case 'pending': return 'bg-blue-600';
-      case 'draft': return 'bg-yellow-600';
-      case 'rejected': return 'bg-red-600';
+      case 3: return 'bg-green-600';
+      case 2: return 'bg-blue-600';
+      case 1: return 'bg-yellow-600';
+      case 4: return 'bg-red-600';
       default: return 'bg-gray-600';
     }
   }
 
   canEditEntry(entry: TimeEntry): boolean {
-    return entry.status === 'draft' || entry.status === 'rejected';
+    return entry.status === 1 || entry.status === 4;
   }
 
   canSendForApproval(entry: TimeEntry): boolean {
-    return entry.status === 'draft';
+    return entry.status === 1;
   }
 
   addEntry() {
@@ -352,7 +346,7 @@ export class EntryTableComponent implements OnInit, AfterViewInit {
         const updatedEntry = {
           ...entry,
           ...result,
-          status: entry.status === 'rejected' ? 'draft' : entry.status
+          status: entry.status === 4 ? 1 : entry.status
         };
 
         this.isLoadingSignal.set(true);

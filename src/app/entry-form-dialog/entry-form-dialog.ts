@@ -1,5 +1,5 @@
 import { environment } from './../environments/environment';
-import { TimeEntry } from './../models/time-entry.model';
+import { getStatusText, STATUS_MAP, TimeEntry } from './../models/time-entry.model';
 import { Component, Inject, inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
@@ -82,7 +82,7 @@ export class EntryFormDialogComponent {
         startTime: data.entry.startTime || '',
         endTime: data.entry.endTime || '',
         break: data.entry.break || '',
-        status: data.entry.status || 'draft',
+        status: data.entry.status || 1,
         rejectionMessage: data.entry.rejectionMessage || '',
         description: data.entry.description || ''
       };
@@ -97,11 +97,41 @@ export class EntryFormDialogComponent {
     this.initializeBreakInputs();
   }
 
+  getStatusText(statusNumber: number): string {
+    return getStatusText(statusNumber);
+  }
+
+  getStatusOptions() {
+    return Object.entries(STATUS_MAP).map(([key, value]) => ({
+      value: parseInt(key),
+      label: value
+    }));
+  }
+
   submit() {
     this.data.entry = this.entry;
 
-    if (!this.entry.date || !this.entry.startTime) {
-      this.showSnackBar('Please fill in all required fields (Date, Project, Start Time, End Time)', 'error');
+    if (!this.entry.date || !this.entry.startTime || !this.entry.endTime) {
+      this.showSnackBar('Please fill in all required fields (Date, Start Time, End Time)', 'error');
+      return;
+    }
+
+    const [startHour, startMinute] = this.entry.startTime.split(':').map(Number);
+    const [endHour, endMinute] = this.entry.endTime.split(':').map(Number);
+
+    const startTotalMinutes = startHour * 60 + startMinute;
+    const endTotalMinutes = endHour * 60 + endMinute;
+
+    if (endTotalMinutes <= startTotalMinutes) {
+      this.showSnackBar('End time must be after start time.', 'error');
+      return;
+    }
+
+    const workedMinutes = endTotalMinutes - startTotalMinutes;
+    const breakMinutes = parseInt(this.entry.break || '0', 10);
+
+    if (breakMinutes >= workedMinutes) {
+      this.showSnackBar('Break time cannot be equal to or longer than worked time.', 'error');
       return;
     }
 
@@ -113,7 +143,8 @@ export class EntryFormDialogComponent {
 
     const payload = {
       ...this.entry,
-      description: this.entry.description || ''
+      description: this.entry.description || '',
+      status: this.entry.status || 1,
     };
 
     if (this.isEditMode) {
@@ -136,6 +167,7 @@ export class EntryFormDialogComponent {
       });
     }
   }
+
 
   private handleBackendError(error: any) {
     console.error('Backend error:', error);
@@ -270,7 +302,7 @@ export class EntryFormDialogComponent {
         startTime: existingEntry.startTime || '',
         endTime: existingEntry.endTime || '',
         break: existingEntry.break || '',
-        status: 'draft',
+        status: 1,
         rejectionMessage: '',
         description: existingEntry.description || ''
       };

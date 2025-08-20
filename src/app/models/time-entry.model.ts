@@ -4,7 +4,7 @@ export interface TimeEntry {
   startTime: string;
   endTime: string;
   break: string;
-  status: 'draft' | 'pending' | 'accepted' | 'rejected';
+  status: number;
   project: string;
   description: string;
   rejectionMessage?: string;
@@ -16,7 +16,7 @@ export interface TimeEntryCreateRequest {
   endTime: string;
   break: string;
   total: string;
-  status: 'draft' | 'pending' | 'accepted' | 'rejected';
+  status: number;
   project: string;
   description: string;
 }
@@ -25,4 +25,26 @@ export interface TimeEntryUpdateRequest extends Partial<TimeEntryCreateRequest> 
   id: number;
 }
 
-export type TimeEntryStatus = 'draft' | 'pending' | 'accepted' | 'rejected';
+export type TimeEntryStatus = 1 | 2 | 3 | 4;
+
+export const STATUS_MAP = {
+  1: 'draft',
+  2: 'pending',
+  3: 'acceptat',
+  4: 'respins'
+} as const;
+
+export const REVERSE_STATUS_MAP = {
+  'draft': 1,
+  'pending': 2,
+  'acceptat': 3,
+  'respins': 4
+} as const;
+
+export function getStatusText(statusNumber: number): string {
+  return STATUS_MAP[statusNumber as keyof typeof STATUS_MAP] || 'necunoscut';
+}
+
+export function getStatusNumber(statusText: string): number {
+  return REVERSE_STATUS_MAP[statusText as keyof typeof REVERSE_STATUS_MAP] || 1;
+}
