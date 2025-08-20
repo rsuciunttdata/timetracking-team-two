@@ -181,10 +181,9 @@ export class DashboardComponent {
     private dialog: MatDialog,
   ) {
     this.instanceId = ++DashboardComponent.instanceCount;
-    console.log(`DashboardComponent constructed [instance ${this.instanceId}]`);
   }
 
-  
+
 
   hasEntries(): boolean {
     return this.allEntries.length > 0;
@@ -232,23 +231,23 @@ export class DashboardComponent {
     return 'bg-red-500';
   }
 
-   addEntry() {
-      if (this.isDialogOpen) {
-        return;
-      }
-  
-      this.isDialogOpen = true;
-  
-      const dialogRef = this.dialog.open(EntryFormDialogComponent, {
-        width: '500px',
-        disableClose: true,
-        data: null
-      });
-  
-      dialogRef.afterClosed().subscribe(result => {
-        this.isDialogOpen = false;
-  
-        
-      });
+  addEntry() {
+    if (this.isDialogOpen) {
+      return;
     }
+
+    this.isDialogOpen = true;
+
+    const dialogRef = this.dialog.open(EntryFormDialogComponent, {
+      width: '500px',
+      disableClose: true,
+      data: null
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      this.isDialogOpen = false;
+
+
+    });
+  }
 }

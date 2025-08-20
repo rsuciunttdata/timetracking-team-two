@@ -22,7 +22,5 @@ export const mockHttpInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>
     }
   });
 
-  console.log(`[Interceptor] Intercepting ${req.method} ${req.url} → ${modifiedReq.url}`);
-
   return next(modifiedReq);
 };

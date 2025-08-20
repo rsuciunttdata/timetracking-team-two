@@ -12,12 +12,11 @@ import { Router } from '@angular/router';
 export class NavbarComponent implements OnInit {
   isLoggedIn = false;
 
-  constructor(public router: Router) {}
+  constructor(public router: Router) { }
 
   ngOnInit(): void {
     this.isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
 
-    // Optional: listen to route changes and update state dynamically
     this.router.events.subscribe(() => {
       this.isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
     });
@@ -42,7 +41,7 @@ export class NavbarComponent implements OnInit {
   }
 
   isDashboardPage(): boolean {
-  return this.router.url === '/dashboard';
-}
+    return this.router.url === '/dashboard';
+  }
 
 }

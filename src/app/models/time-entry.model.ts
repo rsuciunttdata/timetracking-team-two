@@ -4,10 +4,10 @@ export interface TimeEntry {
   startTime: string;
   endTime: string;
   break: string;
-  total: string;
   status: 'draft' | 'pending' | 'accepted' | 'rejected';
   project: string;
   description: string;
+  rejectionMessage?: string;
 }
 
 export interface TimeEntryCreateRequest {
